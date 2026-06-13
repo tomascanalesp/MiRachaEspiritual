@@ -1981,40 +1981,35 @@ const PRESENTATIONS=[
     subtitle:'Una mirada generacional',
     icon:'📡',
     slides:[
-      {type:'image', src:'assets/algoritmos/slide01.png',
-        alt:'El patrón — Jueces 2:10: el declive de la fe entre generaciones'},
-      {type:'image', src:'assets/algoritmos/slide02.jpg',
-        alt:'Slide 02 — Fe más allá de los algoritmos'},
-      {type:'image', src:'assets/algoritmos/slide03.jpg',
-        alt:'Slide 03 — Fe más allá de los algoritmos'},
-      {type:'image', src:'assets/algoritmos/slide04.jpg',
-        alt:'Slide 04 — Fe más allá de los algoritmos'},
-      {type:'image', src:'assets/algoritmos/slide05.png',
-        alt:'Slide 05 — Las 7 generaciones'},
-      {type:'verse', num:'06',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+      {type:'faa-image', num:'01', src:'assets/algoritmos/slide01.png',
+        alt:'El patrón — Jueces 2:10'},
+      {type:'faa-image', num:'02', src:'assets/algoritmos/slide02.jpg',
+        alt:'Herencia y tradición'},
+      {type:'faa-image', num:'03', src:'assets/algoritmos/slide03.jpg',
+        alt:'iMac G3 — era tecnológica'},
+      {type:'faa-image', num:'04', src:'assets/algoritmos/slide04.jpg',
+        alt:'Conferencia educativa'},
+      {type:'faa-image', num:'05', src:'assets/algoritmos/slide05.png',
+        alt:'Las 7 generaciones'},
+      {type:'faa-quote', num:'06',
         text:'Entrad por la puerta estrecha; porque ancha es la puerta, y espacioso el camino que lleva a la perdición, y muchos son los que entran por ella; porque estrecha es la puerta, y angosto el camino que lleva a la vida, y pocos son los que la hallan.',
         ref:'Mateo 7:13-14'},
-      {type:'verse', num:'07',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+      {type:'faa-quote', num:'07',
         text:'Jesucristo es el mismo ayer, y hoy, y por los siglos.',
         ref:'Hebreos 13:8'},
-      {type:'interlude', num:'08',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
-        kicker:'PAUSA',
-        text:'En medio del ruido, hay una voz que no cambia. Una roca que se mantiene firme cuando todo lo demás se mueve.'},
-      {type:'verse', num:'09',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+      {type:'faa-image', num:'08', src:'assets/algoritmos/slide08.png',
+        alt:'Historia de la fe a través de los siglos'},
+      {type:'faa-quote', num:'09',
         text:'Tú guardarás en completa paz a aquel cuyo pensamiento en ti persevera; porque en ti ha confiado.',
         ref:'Isaías 26:3'},
-      {type:'verse', num:'10',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+      {type:'faa-image-quote', num:'10', src:'assets/algoritmos/slide10.png',
+        alt:'Sabiduría del Sabiá-ferrugem',
         text:'Mirad las aves del cielo, que no siembran, ni siegan, ni recogen en graneros; y vuestro Padre celestial las alimenta. ¿No valéis vosotros mucho más que ellas?',
         ref:'Mateo 6:26'},
-      {type:'angels', num:'11',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+      {type:'faa-angels', num:'11',
         kicker:'EL MENSAJE DE LOS TRES ÁNGELES',
         ref:'Apocalipsis 14:6-12',
+        src:'assets/algoritmos/slide11.jpg',
         angels:[
           {label:'PRIMER ÁNGEL',
             text:'«Temed a Dios, y dadle gloria, porque la hora de su juicio ha llegado; y adorad a aquel que hizo el cielo y la tierra, el mar y las fuentes de las aguas.»'},
@@ -2025,25 +2020,26 @@ const PRESENTATIONS=[
         ],
         closing:{label:'v.12',
           text:'«Aquí está la paciencia de los santos, los que guardan los mandamientos de Dios y la fe de Jesús.»'}},
-      {type:'section', num:'12',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+      {type:'faa-title-image', num:'12',
         kicker:'IDENTIDAD',
-        title:'La oveja y el becerro',
-        subtitle:'¿Dónde está tu identidad? ¿En lo que el algoritmo dice que eres o en lo que tu Pastor dice que eres?'},
-      {type:'testimonio', num:'13',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        title:'La Oveja y el Becerro',
+        src:'assets/algoritmos/slide12.png',
+        alt:'La oveja y el becerro — identidad profética'},
+      {type:'faa-testimony', num:'13',
         kicker:'TESTIMONIO',
         name:'Ben Carson',
-        description:'De la pobreza a neurocirujano de fama mundial: una vida transformada por la fe y el esfuerzo.',
-        videoHint:'Abre el menú de videos para reproducir el testimonio.'},
-      {type:'testimonio', num:'14',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        images:[
+          {src:'assets/algoritmos/slide13a.jpg', alt:'Ben Carson joven'},
+          {src:'assets/algoritmos/slide13b.jpg', alt:'Ben Carson adulto'},
+        ],
+        caption:'De la pobreza a neurocirujano de fama mundial: una vida transformada por la fe y el esfuerzo.'},
+      {type:'faa-testimony', num:'14',
         kicker:'TESTIMONIO',
         name:'Samuel Melquiades Silva de Oliveira',
-        description:'Un don al servicio del mensaje.',
-        videoHint:'Abre el menú de videos para reproducir el testimonio.'},
-      {type:'verse', num:'15',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        images:[{src:'assets/algoritmos/slide14.jpg', alt:'Samuel Melquiades'}],
+        caption:'Un don al servicio del mensaje.'},
+      {type:'faa-quote-bg', num:'15',
+        src:'assets/algoritmos/slide15.jpg',
         text:'Porque el Señor mismo con voz de mando, con voz de arcángel, y con trompeta de Dios, descenderá del cielo; y los muertos en Cristo resucitarán primero. Luego nosotros los que vivimos… seremos arrebatados juntamente con ellos en las nubes para recibir al Señor en el aire, y así estaremos siempre con el Señor.',
         ref:'1 Tesalonicenses 4:16-17'},
     ],
@@ -2167,6 +2163,46 @@ function SlideShell({children,index,total,footer}){
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ════════════════════════ FE MÁS ALLÁ DE LOS ALGORITMOS ════════════════════════
+   Paleta navy + dorado, marco propio (no usa SLIDE_T verde). */
+const FAA={
+  bg:'#0a1235',
+  bgSoft:'rgba(10,18,53,.78)',
+  ink:'#f5f0e6',
+  body:'rgba(245,240,230,.88)',
+  bodyMuted:'rgba(245,240,230,.62)',
+  gold:'#d4a64a',
+  goldDark:'#a8852f',
+};
+
+/* Marco oscuro para slides del deck "Fe más allá de los algoritmos". */
+function FAAShell({children,num,brand='FE MÁS ALLÁ DE LOS ALGORITMOS'}){
+  return(
+    <div style={{position:'relative',width:'min(96vw,1180px)',
+      aspectRatio:'16 / 9',background:FAA.bg,borderRadius:18,
+      boxShadow:'0 26px 70px rgba(0,0,0,.55)',
+      padding:'clamp(22px,3vw,42px) clamp(26px,3.4vw,52px) clamp(34px,4vw,56px)',
+      border:'1px solid rgba(255,255,255,.08)',
+      color:FAA.ink,overflow:'hidden'}}>
+      <div style={{position:'relative',height:'100%',width:'100%',
+        display:'flex',flexDirection:'column'}}>{children}</div>
+      <div style={{position:'absolute',bottom:14,left:24,
+        fontFamily:'Barlow Condensed,sans-serif',fontWeight:600,
+        fontSize:'clamp(9px,1vw,12px)',color:'rgba(255,255,255,.32)',
+        letterSpacing:'.22em',textTransform:'uppercase'}}>
+        {brand}
+      </div>
+      {num&&(
+        <div style={{position:'absolute',bottom:12,right:22,
+          fontFamily:'Barlow,sans-serif',fontWeight:400,
+          fontSize:'clamp(10px,1.1vw,13px)',color:'rgba(255,255,255,.45)'}}>
+          {num}
+        </div>
+      )}
     </div>
   );
 }
@@ -2419,23 +2455,233 @@ function SlideView({slide,index,total,footer,isAdmin,onPlayVideo}){
     );
   }
 
-  // ── Imagen a sangrado (slide compuesta principalmente por una imagen) ──
-  if(slide.type==='image'){
+  // ── FAA: imagen a sangrado dentro del marco navy ──
+  if(slide.type==='faa-image'){
     return(
-      <SlideShell index={index} total={total} footer={footer}>
-        <div style={{width:'100%',aspectRatio:'16 / 9',borderRadius:14,overflow:'hidden',
-          background:'#0a0e2e',boxShadow:'0 10px 30px rgba(10,14,46,.35)',
-          border:`2px solid ${SLIDE_T.accent}`}}>
+      <FAAShell num={slide.num}>
+        <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',
+          marginBottom:'clamp(14px,2vw,22px)',overflow:'hidden'}}>
           <img src={slide.src} alt={slide.alt||''}
-            style={{width:'100%',height:'100%',objectFit:'contain',background:'#000',display:'block'}}/>
+            style={{maxWidth:'100%',maxHeight:'100%',width:'auto',height:'100%',
+              objectFit:'contain',display:'block'}}/>
+        </div>
+      </FAAShell>
+    );
+  }
+
+  // ── FAA: cita bíblica (navy + dorado, serif itálica) ──
+  if(slide.type==='faa-quote'){
+    return(
+      <FAAShell num={slide.num}>
+        <div style={{flex:1,display:'flex',flexDirection:'column',
+          justifyContent:'center',padding:'clamp(10px,2vw,30px) 0'}}>
+          <div style={{fontFamily:'Georgia,"Times New Roman",serif',fontWeight:700,
+            fontSize:'clamp(54px,8vw,110px)',color:FAA.gold,lineHeight:.55,
+            marginBottom:'clamp(8px,1.8vw,22px)'}}>“</div>
+          <div style={{fontFamily:'Georgia,"Times New Roman",serif',fontStyle:'italic',
+            fontSize:'clamp(18px,2.4vw,32px)',color:FAA.ink,textAlign:'center',
+            lineHeight:1.5,padding:'0 clamp(10px,4vw,60px)',
+            marginBottom:'clamp(20px,4vw,50px)'}}>
+            {slide.text}
+          </div>
+          <div style={{textAlign:'center',fontFamily:'Barlow,sans-serif',fontWeight:800,
+            fontSize:'clamp(13px,1.6vw,20px)',color:FAA.gold,
+            letterSpacing:'.36em',textTransform:'uppercase'}}>
+            {slide.ref}
+          </div>
+        </div>
+      </FAAShell>
+    );
+  }
+
+  // ── FAA: imagen a la izquierda + cita a la derecha (slide 10) ──
+  if(slide.type==='faa-image-quote'){
+    return(
+      <FAAShell num={slide.num}>
+        <div style={{flex:1,display:'grid',gridTemplateColumns:'1.15fr 1fr',
+          gap:'clamp(18px,3vw,38px)',alignItems:'center',
+          marginBottom:'clamp(14px,2vw,18px)'}}>
+          <div style={{borderRadius:6,overflow:'hidden',background:'#0a1235'}}>
+            <img src={slide.src} alt={slide.alt||''}
+              style={{width:'100%',height:'auto',display:'block'}}/>
+          </div>
+          <div>
+            <div style={{fontFamily:'Georgia,"Times New Roman",serif',fontWeight:700,
+              fontSize:'clamp(38px,5vw,70px)',color:FAA.gold,lineHeight:.5,
+              marginBottom:'clamp(8px,1.4vw,16px)'}}>“</div>
+            <div style={{fontFamily:'Georgia,"Times New Roman",serif',fontStyle:'italic',
+              fontSize:'clamp(13px,1.7vw,22px)',color:FAA.ink,lineHeight:1.55,
+              marginBottom:'clamp(18px,3vw,36px)'}}>
+              {slide.text}
+            </div>
+            <div style={{fontFamily:'Barlow,sans-serif',fontWeight:800,
+              fontSize:'clamp(11px,1.3vw,17px)',color:FAA.gold,
+              letterSpacing:'.36em',textTransform:'uppercase'}}>
+              {slide.ref}
+            </div>
+          </div>
+        </div>
+      </FAAShell>
+    );
+  }
+
+  // ── FAA: mensaje de los 3 ángeles (texto a la izq + imagen a la der) ──
+  if(slide.type==='faa-angels'){
+    return(
+      <FAAShell num={slide.num}>
+        <div style={{position:'absolute',top:0,right:'-6%',width:'56%',height:'100%',
+          overflow:'hidden',borderRadius:'0 18px 18px 0'}}>
+          <img src={slide.src} alt=""
+            style={{width:'100%',height:'100%',objectFit:'cover',opacity:.55}}/>
+          <div style={{position:'absolute',inset:0,
+            background:`linear-gradient(90deg,${FAA.bg} 0%,rgba(10,18,53,.55) 50%,rgba(10,18,53,0) 100%)`}}/>
+        </div>
+        <div style={{position:'relative',flex:1,display:'flex',flexDirection:'column',
+          justifyContent:'center',maxWidth:'58%',paddingRight:'clamp(10px,2vw,20px)'}}>
+          <div style={{fontFamily:'Barlow,sans-serif',fontWeight:800,
+            fontSize:'clamp(10px,1.2vw,15px)',color:FAA.gold,
+            letterSpacing:'.32em',textTransform:'uppercase',
+            marginBottom:'clamp(6px,1vw,12px)'}}>
+            {slide.kicker}
+          </div>
+          <div style={{fontFamily:'Georgia,"Times New Roman",serif',fontWeight:700,
+            fontSize:'clamp(20px,2.8vw,40px)',color:FAA.ink,
+            marginBottom:'clamp(12px,2vw,22px)'}}>
+            {slide.ref}
+          </div>
+          <div style={{display:'flex',flexDirection:'column',
+            gap:'clamp(8px,1.4vw,18px)'}}>
+            {slide.angels.map((a,i)=>(
+              <div key={i} style={{fontFamily:'Georgia,"Times New Roman",serif',
+                fontSize:'clamp(10px,1.2vw,15px)',color:FAA.body,lineHeight:1.5,
+                fontStyle:'italic'}}>
+                <span style={{fontFamily:'Barlow,sans-serif',fontWeight:800,fontStyle:'normal',
+                  color:FAA.gold,letterSpacing:'.16em',textTransform:'uppercase',
+                  marginRight:8}}>{a.label}</span>
+                {a.text}
+              </div>
+            ))}
+            {slide.closing&&(
+              <div style={{fontFamily:'Georgia,"Times New Roman",serif',
+                fontSize:'clamp(10px,1.2vw,15px)',color:FAA.body,lineHeight:1.5,
+                fontStyle:'italic'}}>
+                <span style={{fontFamily:'Barlow,sans-serif',fontWeight:800,fontStyle:'normal',
+                  color:FAA.gold,marginRight:8}}>{slide.closing.label}</span>
+                {slide.closing.text}
+              </div>
+            )}
+          </div>
+        </div>
+      </FAAShell>
+    );
+  }
+
+  // ── FAA: título arriba + imagen abajo (slide 12 — Identidad) ──
+  if(slide.type==='faa-title-image'){
+    return(
+      <FAAShell num={slide.num}>
+        <div style={{marginBottom:'clamp(8px,1.4vw,16px)'}}>
+          <div style={{fontFamily:'Barlow,sans-serif',fontWeight:800,
+            fontSize:'clamp(10px,1.2vw,15px)',color:FAA.gold,
+            letterSpacing:'.32em',textTransform:'uppercase',marginBottom:6}}>
+            {slide.kicker}
+          </div>
+          <div style={{fontFamily:'Georgia,"Times New Roman",serif',fontWeight:700,
+            fontSize:'clamp(24px,3.4vw,48px)',color:FAA.ink,lineHeight:1.1}}>
+            {slide.title}
+          </div>
+        </div>
+        <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',
+          overflow:'hidden',marginBottom:'clamp(10px,1.6vw,18px)'}}>
+          <img src={slide.src} alt={slide.alt||''}
+            style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain',display:'block'}}/>
+        </div>
+      </FAAShell>
+    );
+  }
+
+  // ── FAA: testimonio (título + 1-2 imágenes + caption + botón video) ──
+  if(slide.type==='faa-testimony'){
+    const imgs=slide.images||[];
+    return(
+      <FAAShell num={slide.num}>
+        <div style={{marginBottom:'clamp(6px,1.2vw,14px)'}}>
+          <div style={{fontFamily:'Barlow,sans-serif',fontWeight:800,
+            fontSize:'clamp(10px,1.2vw,15px)',color:FAA.gold,
+            letterSpacing:'.32em',textTransform:'uppercase',marginBottom:4}}>
+            {slide.kicker||'TESTIMONIO'}
+          </div>
+          <div style={{fontFamily:'Georgia,"Times New Roman",serif',fontWeight:700,
+            fontSize:'clamp(22px,3.2vw,44px)',color:FAA.ink,lineHeight:1.05}}>
+            {slide.name}
+          </div>
+        </div>
+        <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',
+          gap:'clamp(14px,2.4vw,32px)',overflow:'hidden',
+          padding:'clamp(6px,1vw,14px) 0'}}>
+          {imgs.map((img,i)=>(
+            <div key={i} style={{border:`2px solid ${FAA.gold}`,
+              background:'#000',boxShadow:'0 6px 22px rgba(0,0,0,.5)',
+              height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <img src={img.src} alt={img.alt||''}
+                style={{maxHeight:'100%',maxWidth:'100%',display:'block'}}/>
+            </div>
+          ))}
         </div>
         {slide.caption&&(
-          <div style={{marginTop:'clamp(8px,1.4vw,14px)',textAlign:'center',
-            fontFamily:'Barlow,sans-serif',fontWeight:500,fontStyle:'italic',
-            fontSize:'clamp(12px,1.5vw,17px)',color:'#fff',lineHeight:1.4,
-            textShadow:'0 2px 8px rgba(40,55,18,.35)'}}>{slide.caption}</div>
+          <div style={{textAlign:'center',fontFamily:'Georgia,"Times New Roman",serif',
+            fontStyle:'italic',
+            fontSize:'clamp(11px,1.35vw,17px)',color:FAA.body,
+            margin:'clamp(6px,1vw,12px) 0 clamp(6px,1vw,10px)',lineHeight:1.4}}>
+            {slide.caption}
+          </div>
         )}
-      </SlideShell>
+        {isAdmin&&onPlayVideo&&(
+          <div style={{textAlign:'center',marginBottom:'clamp(6px,1vw,10px)'}}>
+            <button onClick={onPlayVideo} style={{
+              padding:'10px 22px',borderRadius:10,border:`1px solid ${FAA.gold}`,
+              background:'rgba(212,166,74,.18)',color:FAA.gold,cursor:'pointer',
+              fontFamily:'Barlow Condensed,sans-serif',fontWeight:800,
+              fontSize:'clamp(12px,1.5vw,17px)',letterSpacing:'.14em',
+              textTransform:'uppercase',
+              display:'inline-flex',alignItems:'center',gap:8}}>
+              <span>▶</span><span>Reproducir video</span>
+            </button>
+          </div>
+        )}
+      </FAAShell>
+    );
+  }
+
+  // ── FAA: cita con imagen de fondo (slide 15) ──
+  if(slide.type==='faa-quote-bg'){
+    return(
+      <FAAShell num={slide.num}>
+        <div style={{position:'absolute',inset:0,overflow:'hidden',borderRadius:18}}>
+          <img src={slide.src} alt=""
+            style={{width:'100%',height:'100%',objectFit:'cover',opacity:.75}}/>
+          <div style={{position:'absolute',inset:0,
+            background:`linear-gradient(180deg,rgba(10,18,53,.25) 0%,rgba(10,18,53,.55) 45%,rgba(10,18,53,.92) 75%,${FAA.bg} 100%)`}}/>
+        </div>
+        <div style={{position:'relative',marginTop:'auto',
+          padding:'clamp(16px,2.4vw,30px) clamp(18px,3vw,40px) clamp(8px,1.4vw,14px)',
+          background:'rgba(10,18,53,.75)',borderRadius:10,
+          boxShadow:'0 8px 24px rgba(0,0,0,.4)'}}>
+          <div style={{fontFamily:'Georgia,"Times New Roman",serif',fontWeight:700,
+            fontSize:'clamp(38px,5vw,68px)',color:FAA.gold,lineHeight:.5,
+            marginBottom:'clamp(8px,1.2vw,14px)'}}>“</div>
+          <div style={{fontFamily:'Georgia,"Times New Roman",serif',fontStyle:'italic',
+            fontSize:'clamp(12px,1.55vw,21px)',color:FAA.ink,lineHeight:1.5,
+            textAlign:'center',marginBottom:'clamp(12px,2vw,22px)'}}>
+            {slide.text}
+          </div>
+          <div style={{textAlign:'center',fontFamily:'Barlow,sans-serif',fontWeight:800,
+            fontSize:'clamp(11px,1.3vw,17px)',color:FAA.gold,
+            letterSpacing:'.4em',textTransform:'uppercase'}}>
+            {slide.ref}
+          </div>
+        </div>
+      </FAAShell>
     );
   }
 
