@@ -1981,26 +1981,16 @@ const PRESENTATIONS=[
     subtitle:'Una mirada generacional',
     icon:'📡',
     slides:[
-      {type:'section', num:'01',
-        kicker:'EL PATRÓN', ref:'Jueces 2:10',
-        title:'El declive de la fe entre generaciones',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS'},
-      {type:'interlude', num:'02',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
-        kicker:'JUECES 2:10',
-        text:'«Toda aquella generación fue también reunida con sus padres. Y se levantó después de ellos otra generación que no conocía a Jehová, ni la obra que él había hecho por Israel.»'},
-      {type:'interlude', num:'03',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
-        kicker:'PREGUNTA',
-        text:'¿Qué pasa cuando una generación olvida lo que Dios hizo? ¿Cómo se rompe la cadena de la fe?'},
-      {type:'interlude', num:'04',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
-        kicker:'CONTEXTO',
-        text:'Vivimos rodeados de algoritmos que deciden por nosotros. Pero la fe no se transmite por inercia: se entrega, se vive y se cuenta.'},
-      {type:'interlude', num:'05',
-        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
-        kicker:'DESAFÍO',
-        text:'No podemos darle a la próxima generación lo que no tenemos. La fe se hereda cuando se ve real en nosotros.'},
+      {type:'image', src:'assets/algoritmos/slide01.png',
+        alt:'El patrón — Jueces 2:10: el declive de la fe entre generaciones'},
+      {type:'image', src:'assets/algoritmos/slide02.jpg',
+        alt:'Slide 02 — Fe más allá de los algoritmos'},
+      {type:'image', src:'assets/algoritmos/slide03.jpg',
+        alt:'Slide 03 — Fe más allá de los algoritmos'},
+      {type:'image', src:'assets/algoritmos/slide04.jpg',
+        alt:'Slide 04 — Fe más allá de los algoritmos'},
+      {type:'image', src:'assets/algoritmos/slide05.png',
+        alt:'Slide 05 — Las 7 generaciones'},
       {type:'verse', num:'06',
         brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
         text:'Entrad por la puerta estrecha; porque ancha es la puerta, y espacioso el camino que lleva a la perdición, y muchos son los que entran por ella; porque estrecha es la puerta, y angosto el camino que lleva a la vida, y pocos son los que la hallan.',
@@ -2425,6 +2415,26 @@ function SlideView({slide,index,total,footer,isAdmin,onPlayVideo}){
           ))}
           <div style={{marginTop:10}}><SlideBrand/></div>
         </div>
+      </SlideShell>
+    );
+  }
+
+  // ── Imagen a sangrado (slide compuesta principalmente por una imagen) ──
+  if(slide.type==='image'){
+    return(
+      <SlideShell index={index} total={total} footer={footer}>
+        <div style={{width:'100%',aspectRatio:'16 / 9',borderRadius:14,overflow:'hidden',
+          background:'#0a0e2e',boxShadow:'0 10px 30px rgba(10,14,46,.35)',
+          border:`2px solid ${SLIDE_T.accent}`}}>
+          <img src={slide.src} alt={slide.alt||''}
+            style={{width:'100%',height:'100%',objectFit:'contain',background:'#000',display:'block'}}/>
+        </div>
+        {slide.caption&&(
+          <div style={{marginTop:'clamp(8px,1.4vw,14px)',textAlign:'center',
+            fontFamily:'Barlow,sans-serif',fontWeight:500,fontStyle:'italic',
+            fontSize:'clamp(12px,1.5vw,17px)',color:'#fff',lineHeight:1.4,
+            textShadow:'0 2px 8px rgba(40,55,18,.35)'}}>{slide.caption}</div>
+        )}
       </SlideShell>
     );
   }
