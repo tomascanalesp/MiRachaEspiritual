@@ -208,6 +208,10 @@ const MISION_PROJECTS=[
 ];
 
 const getSID=()=>new Date().toISOString().slice(0,10);
+// Sala unificada: Gteen y JA comparten la MISMA sala. La clase del usuario solo
+// cambia su logo/color (badge del avatar), no la sala a la que entra. Todos se
+// ven entre sí con su logo respectivo en una única pantalla.
+const getRoomSID=()=>'maranata-'+getSID();
 const nowTime=()=>new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
 
 // Correos que tienen admin automáticamente al iniciar sesión.
@@ -877,16 +881,22 @@ function RoomCanvas({users,myId,session,onDragMove,roomRef,full,reactions,classK
               display:'flex',alignItems:'center',justifyContent:'space-between',
               gap:full?14:10,marginBottom:full?10:6,
             }}>
-              {/* Logo de la clase + título */}
+              {/* Sala unificada: ambos logos (Gteen + JA) + título neutral */}
               <div style={{display:'flex',alignItems:'center',gap:full?12:8,minWidth:0}}>
-                <div style={{
-                  width:full?54:38,height:full?54:38,borderRadius:'50%',
-                  background:'#fff',padding:full?5:3,flexShrink:0,
-                  boxShadow:'0 2px 8px rgba(0,0,0,.18)',
-                  display:'flex',alignItems:'center',justifyContent:'center',
-                }}>
-                  <img src={cls.logo} alt={cls.label}
-                    style={{width:'100%',height:'100%',objectFit:'contain'}}/>
+                <div style={{display:'flex',alignItems:'center',flexShrink:0}}>
+                  {[CLASSES.gteen,CLASSES.ja].map((c,i)=>(
+                    <div key={c.id} style={{
+                      width:full?48:34,height:full?48:34,borderRadius:'50%',
+                      background:'#fff',padding:full?5:3,
+                      boxShadow:'0 2px 8px rgba(0,0,0,.18)',
+                      display:'flex',alignItems:'center',justifyContent:'center',
+                      marginLeft:i===0?0:(full?-14:-10),
+                      border:'2px solid #fff',
+                    }}>
+                      <img src={c.logo} alt={c.label}
+                        style={{width:'100%',height:'100%',objectFit:'contain'}}/>
+                    </div>
+                  ))}
                 </div>
                 <div style={{lineHeight:1.05,minWidth:0}}>
                   <div style={{
@@ -897,7 +907,7 @@ function RoomCanvas({users,myId,session,onDragMove,roomRef,full,reactions,classK
                     fontSize:full?22:16,fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
                     color:'#fff',textTransform:'uppercase',letterSpacing:'.04em',marginTop:2,
                     whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',
-                  }}>{cls.salaLabel}</div>
+                  }}>Sala Maranata</div>
                 </div>
               </div>
               {/* En vivo + count */}
@@ -5569,7 +5579,7 @@ function EditProfileModal({profile,onSave,onClose}){
             })}
           </div>
           <div style={{fontSize:10,color:'var(--muted)',marginTop:6}}>
-            Al cambiar de clase, la app se recarga para entrar a la nueva sala.
+            Gteen y JA comparten la misma sala. Tu clase solo cambia tu logo y color; seguirás con todos en la misma pantalla.
           </div>
         </div>
 
@@ -6525,9 +6535,9 @@ function App(){
   const surveyAllNotifyShownRef=useRef(false);
 
   const UID      =useRef(null);
-  // SID se prefija con la clase del usuario para separar las salas (gteen-YYYY-MM-DD vs ja-YYYY-MM-DD).
-  // Se actualiza en cuanto cargamos/elegimos la clase del perfil.
-  const SID      =useRef('gteen-'+getSID());
+  // Sala unificada: Gteen y JA comparten la misma sala (maranata-YYYY-MM-DD).
+  // La clase del usuario ya no separa salas, solo define su logo/color.
+  const SID      =useRef(getRoomSID());
   const roomRef  =useRef(null);
   const sessionRef=useRef(null);
   const lastPosRef=useRef({zone:'entrada',x:49,y:9});
@@ -6581,7 +6591,7 @@ function App(){
             // Compatibilidad: usuarios previos sin "clase" → default gteen (pueden cambiarlo en perfil).
             const cls = (p.clase&&CLASSES[p.clase])?p.clase:'gteen';
             const fullProfile = {...p,clase:cls,isAdmin:adminFlag};
-            SID.current = `${cls}-${getSID()}`;
+            SID.current = getRoomSID();
             setProfile(fullProfile);
             setIsAdmin(adminFlag);
             await joinRoom(user.uid,fullProfile);
@@ -6871,17 +6881,13 @@ function App(){
     setSetupSaving(true); setSetupError('');
     try{
       const cls = (newProfile.clase&&CLASSES[newProfile.clase])?newProfile.clase:'gteen';
-      const oldSID = SID.current;
-      const newSID = `${cls}-${getSID()}`;
       const profileToSave = {...newProfile, clase:cls, isAdmin:isAdmin||false};
 
       await db.ref(`profiles/${uid}`).set(profileToSave);
 
-      // Si cambió de clase, retirarse de la sala anterior antes de unirse a la nueva.
-      if(oldSID!==newSID){
-        try{ await db.ref(`rooms/${oldSID}/users/${uid}`).remove(); }catch(e){}
-        SID.current = newSID;
-      }
+      // Sala unificada: cambiar de clase NO cambia de sala. Solo se actualiza el
+      // logo/color del usuario en vivo; sigue en la misma sala con todos los demás.
+      SID.current = getRoomSID();
 
       try{
         await db.ref(`rooms/${SID.current}/users/${uid}`).update({
@@ -6897,10 +6903,9 @@ function App(){
         const emailKey=auth.currentUser?.email||'';
         sendWelcomeEmail(emailKey, newProfile.name);
         setView('room');
-      } else if(oldSID!==newSID){
-        // Re-suscribir al cambiar de clase: recargar para refrescar listeners.
-        window.location.reload();
       }
+      // Sala unificada: cambiar de clase ya no requiere recargar; el avatar
+      // (logo/color) se refresca en vivo en la misma sala.
     }catch(e){
       console.error(e);
       setSetupError('No se pudo guardar. Verifica tu conexión.');
