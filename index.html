@@ -1969,6 +1969,95 @@ const PRESENTATIONS=[
         people:['Makarina Valdivia F. — Ilustración, Resumen y Edición','Daniela Garcés B. — Ilustración, Resumen y Edición']},
     ],
   },
+  {
+    /* Presentación especial: temática sobre el declive generacional de la fe
+       y el mensaje adventista. En las slides 13 y 14 (testimonios) el admin
+       puede lanzar un video del catálogo VIDEOS para que todos lo vean
+       sincronizado. */
+    id:'algoritmos',
+    week:'Tema especial',
+    weekLong:'Tema especial',
+    title:'Fe más allá de los algoritmos',
+    subtitle:'Una mirada generacional',
+    icon:'📡',
+    slides:[
+      {type:'section', num:'01',
+        kicker:'EL PATRÓN', ref:'Jueces 2:10',
+        title:'El declive de la fe entre generaciones',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS'},
+      {type:'interlude', num:'02',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        kicker:'JUECES 2:10',
+        text:'«Toda aquella generación fue también reunida con sus padres. Y se levantó después de ellos otra generación que no conocía a Jehová, ni la obra que él había hecho por Israel.»'},
+      {type:'interlude', num:'03',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        kicker:'PREGUNTA',
+        text:'¿Qué pasa cuando una generación olvida lo que Dios hizo? ¿Cómo se rompe la cadena de la fe?'},
+      {type:'interlude', num:'04',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        kicker:'CONTEXTO',
+        text:'Vivimos rodeados de algoritmos que deciden por nosotros. Pero la fe no se transmite por inercia: se entrega, se vive y se cuenta.'},
+      {type:'interlude', num:'05',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        kicker:'DESAFÍO',
+        text:'No podemos darle a la próxima generación lo que no tenemos. La fe se hereda cuando se ve real en nosotros.'},
+      {type:'verse', num:'06',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        text:'Entrad por la puerta estrecha; porque ancha es la puerta, y espacioso el camino que lleva a la perdición, y muchos son los que entran por ella; porque estrecha es la puerta, y angosto el camino que lleva a la vida, y pocos son los que la hallan.',
+        ref:'Mateo 7:13-14'},
+      {type:'verse', num:'07',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        text:'Jesucristo es el mismo ayer, y hoy, y por los siglos.',
+        ref:'Hebreos 13:8'},
+      {type:'interlude', num:'08',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        kicker:'PAUSA',
+        text:'En medio del ruido, hay una voz que no cambia. Una roca que se mantiene firme cuando todo lo demás se mueve.'},
+      {type:'verse', num:'09',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        text:'Tú guardarás en completa paz a aquel cuyo pensamiento en ti persevera; porque en ti ha confiado.',
+        ref:'Isaías 26:3'},
+      {type:'verse', num:'10',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        text:'Mirad las aves del cielo, que no siembran, ni siegan, ni recogen en graneros; y vuestro Padre celestial las alimenta. ¿No valéis vosotros mucho más que ellas?',
+        ref:'Mateo 6:26'},
+      {type:'angels', num:'11',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        kicker:'EL MENSAJE DE LOS TRES ÁNGELES',
+        ref:'Apocalipsis 14:6-12',
+        angels:[
+          {label:'PRIMER ÁNGEL',
+            text:'«Temed a Dios, y dadle gloria, porque la hora de su juicio ha llegado; y adorad a aquel que hizo el cielo y la tierra, el mar y las fuentes de las aguas.»'},
+          {label:'SEGUNDO ÁNGEL',
+            text:'«Ha caído, ha caído Babilonia, la gran ciudad, porque ha hecho beber a todas las naciones del vino del furor de su fornicación.»'},
+          {label:'TERCER ÁNGEL',
+            text:'«Si alguno adora a la bestia y a su imagen, y recibe la marca… él también beberá del vino de la ira de Dios.»'},
+        ],
+        closing:{label:'v.12',
+          text:'«Aquí está la paciencia de los santos, los que guardan los mandamientos de Dios y la fe de Jesús.»'}},
+      {type:'section', num:'12',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        kicker:'IDENTIDAD',
+        title:'La oveja y el becerro',
+        subtitle:'¿Dónde está tu identidad? ¿En lo que el algoritmo dice que eres o en lo que tu Pastor dice que eres?'},
+      {type:'testimonio', num:'13',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        kicker:'TESTIMONIO',
+        name:'Ben Carson',
+        description:'De la pobreza a neurocirujano de fama mundial: una vida transformada por la fe y el esfuerzo.',
+        videoHint:'Abre el menú de videos para reproducir el testimonio.'},
+      {type:'testimonio', num:'14',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        kicker:'TESTIMONIO',
+        name:'Samuel Melquiades Silva de Oliveira',
+        description:'Un don al servicio del mensaje.',
+        videoHint:'Abre el menú de videos para reproducir el testimonio.'},
+      {type:'verse', num:'15',
+        brand:'FE MÁS ALLÁ DE LOS ALGORITMOS',
+        text:'Porque el Señor mismo con voz de mando, con voz de arcángel, y con trompeta de Dios, descenderá del cielo; y los muertos en Cristo resucitarán primero. Luego nosotros los que vivimos… seremos arrebatados juntamente con ellos en las nubes para recibir al Señor en el aire, y así estaremos siempre con el Señor.',
+        ref:'1 Tesalonicenses 4:16-17'},
+    ],
+  },
 ];
 const findPresentation=id=>PRESENTATIONS.find(p=>p.id===id)||PRESENTATIONS[0];
 
@@ -2092,8 +2181,26 @@ function SlideShell({children,index,total,footer}){
   );
 }
 
+/* Marca superior reutilizable para slides de la presentación "Fe más allá
+   de los algoritmos". Se muestra junto al número de slide en estilo banner. */
+function FAABanner({brand,num}){
+  return(
+    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',
+      gap:14,marginBottom:'clamp(8px,1.4vw,16px)'}}>
+      <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+        fontSize:'clamp(10px,1.3vw,15px)',color:SLIDE_T.accentDark,
+        letterSpacing:'.22em',textTransform:'uppercase'}}>{brand||'FE MÁS ALLÁ DE LOS ALGORITMOS'}</div>
+      {num&&(
+        <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+          fontSize:'clamp(28px,4vw,46px)',color:SLIDE_T.accentDark,
+          lineHeight:1,letterSpacing:'.04em'}}>{num}</div>
+      )}
+    </div>
+  );
+}
+
 /* Render de una slide según su tipo, con el estilo verde de la plantilla. */
-function SlideView({slide,index,total,footer}){
+function SlideView({slide,index,total,footer,isAdmin,onPlayVideo}){
   // ── Portada ──
   if(slide.type==='cover'){
     return(
@@ -2322,6 +2429,207 @@ function SlideView({slide,index,total,footer}){
     );
   }
 
+  // ── Sección / divisor (FAA) ──
+  if(slide.type==='section'){
+    return(
+      <SlideShell index={index} total={total} footer={footer}>
+        <FAABanner brand={slide.brand} num={slide.num}/>
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',
+          textAlign:'center',gap:'clamp(10px,1.8vw,18px)',
+          padding:'clamp(14px,3vw,32px) 0'}}>
+          <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+            fontSize:'clamp(14px,1.9vw,22px)',color:SLIDE_T.accentDark,
+            letterSpacing:'.28em',textTransform:'uppercase'}}>{slide.kicker}</div>
+          <h1 style={{margin:0,fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+            fontSize:'clamp(34px,6vw,76px)',lineHeight:1,color:'#fff',
+            textTransform:'uppercase',letterSpacing:'.02em',
+            textShadow:'0 3px 14px rgba(40,55,18,.35)'}}>{slide.title}</h1>
+          {slide.subtitle&&(
+            <div style={{maxWidth:760,fontFamily:'Barlow,sans-serif',fontWeight:500,
+              fontSize:'clamp(14px,1.7vw,21px)',color:SLIDE_T.cardBody,lineHeight:1.5}}>
+              {slide.subtitle}
+            </div>
+          )}
+          {slide.ref&&(
+            <div style={{background:'rgba(255,255,255,.55)',borderRadius:14,
+              padding:'clamp(8px,1.4vw,14px) clamp(16px,2.4vw,30px)',
+              fontFamily:'Barlow Condensed,sans-serif',fontWeight:800,
+              fontSize:'clamp(14px,1.8vw,22px)',color:SLIDE_T.ink,
+              letterSpacing:'.14em',textTransform:'uppercase'}}>
+              📖 {slide.ref}
+            </div>
+          )}
+        </div>
+      </SlideShell>
+    );
+  }
+
+  // ── Versículo destacado (cita bíblica grande, FAA) ──
+  if(slide.type==='verse'){
+    return(
+      <SlideShell index={index} total={total} footer={footer}>
+        <FAABanner brand={slide.brand} num={slide.num}/>
+        <div style={{display:'flex',justifyContent:'center'}}>
+          <div style={{maxWidth:880,width:'100%',
+            background:'#f3ecda',borderRadius:18,
+            padding:'clamp(20px,3vw,40px) clamp(20px,3vw,42px)',
+            border:`3px solid ${SLIDE_T.accent}`,
+            boxShadow:'0 12px 32px rgba(60,81,29,.2)',position:'relative'}}>
+            <div style={{position:'absolute',top:-22,left:24,
+              fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+              fontSize:'clamp(60px,8vw,108px)',color:SLIDE_T.accent,
+              lineHeight:1,opacity:.65}}>“</div>
+            <div style={{fontFamily:'Barlow,sans-serif',fontWeight:500,
+              textAlign:'center',
+              fontSize:'clamp(16px,2.2vw,28px)',color:SLIDE_T.cardBody,
+              lineHeight:1.5,fontStyle:'italic'}}>
+              {slide.text}
+            </div>
+            <div style={{textAlign:'center',marginTop:'clamp(14px,2vw,22px)'}}>
+              <span style={{display:'inline-block',padding:'6px 14px',
+                background:SLIDE_T.accent,color:'#fff',borderRadius:999,
+                fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+                fontSize:'clamp(12px,1.5vw,17px)',letterSpacing:'.18em',
+                textTransform:'uppercase'}}>{slide.ref}</span>
+            </div>
+          </div>
+        </div>
+      </SlideShell>
+    );
+  }
+
+  // ── Interludio visual (texto breve, slide de transición) ──
+  if(slide.type==='interlude'){
+    return(
+      <SlideShell index={index} total={total} footer={footer}>
+        <FAABanner brand={slide.brand} num={slide.num}/>
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',
+          justifyContent:'center',textAlign:'center',
+          gap:'clamp(12px,2vw,20px)',padding:'clamp(20px,4vw,48px) 0',minHeight:240}}>
+          {slide.kicker&&(
+            <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+              fontSize:'clamp(13px,1.6vw,18px)',color:SLIDE_T.accentDark,
+              letterSpacing:'.28em',textTransform:'uppercase',
+              borderBottom:`2px solid ${SLIDE_T.accent}`,paddingBottom:6,
+              display:'inline-block'}}>{slide.kicker}</div>
+          )}
+          <div style={{maxWidth:820,fontFamily:'Barlow,sans-serif',fontWeight:500,
+            fontStyle:'italic',
+            fontSize:'clamp(18px,2.6vw,32px)',color:'#fff',lineHeight:1.45,
+            textShadow:'0 2px 10px rgba(40,55,18,.35)'}}>
+            {slide.text}
+          </div>
+        </div>
+      </SlideShell>
+    );
+  }
+
+  // ── Mensaje de los tres ángeles (Apocalipsis 14) ──
+  if(slide.type==='angels'){
+    return(
+      <SlideShell index={index} total={total} footer={footer}>
+        <FAABanner brand={slide.brand} num={slide.num}/>
+        <div style={{textAlign:'center',marginBottom:'clamp(10px,1.6vw,18px)'}}>
+          <h1 style={{margin:0,fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+            fontSize:'clamp(24px,3.6vw,42px)',color:'#fff',textTransform:'uppercase',
+            letterSpacing:'.04em',textShadow:'0 2px 10px rgba(40,55,18,.35)'}}>
+            {slide.kicker}
+          </h1>
+          {slide.ref&&(
+            <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:700,
+              fontSize:'clamp(12px,1.5vw,18px)',color:SLIDE_T.accentDark,
+              letterSpacing:'.14em',marginTop:4,textTransform:'uppercase'}}>
+              📖 {slide.ref}
+            </div>
+          )}
+        </div>
+        <div style={{display:'grid',
+          gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',
+          gap:'clamp(10px,1.6vw,18px)'}}>
+          {slide.angels.map((a,i)=>(
+            <div key={i} style={{background:i===1?'#ece5d2':'#f3ecda',borderRadius:14,
+              padding:'clamp(12px,1.8vw,20px)',
+              borderTop:`4px solid ${SLIDE_T.accent}`,
+              boxShadow:'0 6px 18px rgba(60,81,29,.16)'}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                <span style={{fontSize:'clamp(18px,2.2vw,26px)'}}>👼</span>
+                <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+                  fontSize:'clamp(12px,1.5vw,17px)',color:SLIDE_T.accentDark,
+                  letterSpacing:'.14em',textTransform:'uppercase'}}>{a.label}</div>
+              </div>
+              <div style={{fontFamily:'Barlow,sans-serif',fontWeight:500,
+                fontSize:'clamp(12px,1.45vw,17px)',color:SLIDE_T.cardBody,
+                lineHeight:1.5}}>{a.text}</div>
+            </div>
+          ))}
+        </div>
+        {slide.closing&&(
+          <div style={{marginTop:'clamp(10px,1.6vw,18px)',
+            background:'rgba(255,255,255,.58)',borderRadius:12,
+            padding:'clamp(10px,1.6vw,18px) clamp(14px,2vw,22px)',
+            borderLeft:`5px solid ${SLIDE_T.accentDark}`}}>
+            <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+              fontSize:'clamp(11px,1.3vw,15px)',color:SLIDE_T.accentDark,
+              letterSpacing:'.16em',textTransform:'uppercase',marginBottom:4}}>
+              {slide.closing.label}
+            </div>
+            <div style={{fontFamily:'Barlow,sans-serif',fontWeight:500,
+              fontSize:'clamp(13px,1.55vw,19px)',color:SLIDE_T.cardBody,
+              lineHeight:1.5,fontStyle:'italic'}}>{slide.closing.text}</div>
+          </div>
+        )}
+      </SlideShell>
+    );
+  }
+
+  // ── Testimonio (con botón para abrir el menú de videos) ──
+  if(slide.type==='testimonio'){
+    return(
+      <SlideShell index={index} total={total} footer={footer}>
+        <FAABanner brand={slide.brand} num={slide.num}/>
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',
+          textAlign:'center',gap:'clamp(12px,2vw,20px)',
+          padding:'clamp(14px,3vw,28px) 0'}}>
+          <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+            fontSize:'clamp(14px,1.9vw,22px)',color:SLIDE_T.accentDark,
+            letterSpacing:'.28em',textTransform:'uppercase',
+            borderBottom:`2px solid ${SLIDE_T.accent}`,paddingBottom:6,
+            display:'inline-block'}}>{slide.kicker||'TESTIMONIO'}</div>
+          <h1 style={{margin:0,fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+            fontSize:'clamp(28px,5vw,62px)',lineHeight:1,color:'#fff',
+            textTransform:'uppercase',letterSpacing:'.02em',
+            textShadow:'0 3px 14px rgba(40,55,18,.35)'}}>{slide.name}</h1>
+          {slide.description&&(
+            <div style={{maxWidth:720,fontFamily:'Barlow,sans-serif',fontWeight:500,
+              fontStyle:'italic',
+              fontSize:'clamp(15px,2vw,24px)',color:SLIDE_T.cardBody,lineHeight:1.5}}>
+              {slide.description}
+            </div>
+          )}
+          {isAdmin&&onPlayVideo?(
+            <button onClick={onPlayVideo} style={{
+              marginTop:8,padding:'clamp(12px,1.6vw,18px) clamp(20px,3vw,32px)',
+              borderRadius:14,border:'none',cursor:'pointer',
+              background:'linear-gradient(135deg,#6f8f3c,#4d6a27)',color:'#fff',
+              fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+              fontSize:'clamp(15px,1.9vw,22px)',letterSpacing:'.1em',
+              textTransform:'uppercase',
+              boxShadow:'0 10px 26px rgba(60,81,29,.4)',
+              display:'inline-flex',alignItems:'center',gap:10}}>
+              <span>▶</span><span>Reproducir video</span>
+            </button>
+          ):(
+            <div style={{marginTop:6,fontFamily:'Barlow Condensed,sans-serif',
+              fontWeight:700,fontSize:'clamp(11px,1.3vw,15px)',
+              color:SLIDE_T.inkSoft,letterSpacing:'.16em',textTransform:'uppercase'}}>
+              🎬 {slide.videoHint||'El anfitrión reproducirá el video.'}
+            </div>
+          )}
+        </div>
+      </SlideShell>
+    );
+  }
+
   // ── Contenido estándar (cards + versículos) ──
   return(
     <SlideShell index={index} total={total} footer={footer}>
@@ -2375,9 +2683,10 @@ function SlideView({slide,index,total,footer}){
 }
 
 /* Overlay de presentación sincronizada: todos ven la slide; el admin avanza. */
-function PresentationOverlay({session,isAdmin,onPrev,onNext,onEnd,onToggleWordCloud,onToggleQR,qrOn}){
+function PresentationOverlay({session,isAdmin,onPrev,onNext,onEnd,onToggleWordCloud,onToggleQR,qrOn,onOpenVideoMenu}){
   const pres=session?.presentation;
   const wcActive=!!session?.wordcloud?.active;
+  const videoActive=!!session?.video?.active;
   const[moreOpen,setMoreOpen]=useState(false);
   const[wcPrompt,setWcPrompt]=useState(false); // pedir la pregunta antes de abrir la nube
   const[wcQuestion,setWcQuestion]=useState('');
@@ -2389,12 +2698,14 @@ function PresentationOverlay({session,isAdmin,onPrev,onNext,onEnd,onToggleWordCl
   useEffect(()=>{
     if(!isAdmin) return;
     const h=e=>{
+      // Si el video está activo encima de la slide, las flechas son del video.
+      if(videoActive) return;
       if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();onNext();}
       else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();onPrev();}
     };
     window.addEventListener('keydown',h);
     return()=>window.removeEventListener('keydown',h);
-  },[isAdmin,onNext,onPrev]);
+  },[isAdmin,onNext,onPrev,videoActive]);
 
   if(!pres?.active) return null;
   const slide=slides[idx];
@@ -2405,7 +2716,8 @@ function PresentationOverlay({session,isAdmin,onPrev,onNext,onEnd,onToggleWordCl
       background:'radial-gradient(ellipse at top,#11173f,#070a1f)',
       display:'flex',flexDirection:'column',alignItems:'center',
       justifyContent:'center',padding:'14px 12px',gap:12}}>
-      <SlideView slide={slide} index={idx} total={total} footer={footer}/>
+      <SlideView slide={slide} index={idx} total={total} footer={footer}
+        isAdmin={isAdmin} onPlayVideo={onOpenVideoMenu}/>
 
       {isAdmin?(
         <div style={{display:'flex',alignItems:'center',gap:10,
@@ -2425,7 +2737,7 @@ function PresentationOverlay({session,isAdmin,onPrev,onNext,onEnd,onToggleWordCl
             width:42,height:42,borderRadius:12,border:'none',cursor:idx===total-1?'default':'pointer',
             background:idx===total-1?'rgba(255,255,255,.05)':'linear-gradient(135deg,#6f8f3c,#4d6a27)',
             color:idx===total-1?'rgba(255,255,255,.3)':'#fff',fontSize:18}}>▶</button>
-          {(onToggleWordCloud||onToggleQR)&&(
+          {(onToggleWordCloud||onToggleQR||onOpenVideoMenu)&&(
             <div style={{position:'relative'}}>
               <button onClick={()=>setMoreOpen(o=>!o)} title="Otras acciones" style={{
                 marginLeft:4,padding:'0 12px',height:42,borderRadius:12,cursor:'pointer',
@@ -2437,10 +2749,20 @@ function PresentationOverlay({session,isAdmin,onPrev,onNext,onEnd,onToggleWordCl
               </button>
               {moreOpen&&(
                 <div style={{position:'absolute',bottom:50,left:'50%',transform:'translateX(-50%)',
-                  display:'flex',flexDirection:'column',gap:7,width:200,
+                  display:'flex',flexDirection:'column',gap:7,width:210,
                   background:'rgba(7,9,31,.97)',border:'1px solid rgba(255,255,255,.14)',
                   borderRadius:14,padding:10,boxShadow:'0 12px 34px rgba(0,0,0,.6)',
                   animation:'modalIn .18s ease'}}>
+                  {onOpenVideoMenu&&(
+                    <button onClick={()=>{onOpenVideoMenu();setMoreOpen(false);}} style={{
+                      width:'100%',padding:'10px 12px',borderRadius:10,cursor:'pointer',textAlign:'left',
+                      border:`1px solid ${videoActive?'rgba(16,185,129,.5)':'rgba(239,68,68,.45)'}`,
+                      background:videoActive?'rgba(16,185,129,.16)':'rgba(239,68,68,.14)',
+                      color:videoActive?'#10b981':'#ef4444',fontWeight:800,fontSize:12.5,
+                      fontFamily:'Barlow Condensed,sans-serif',letterSpacing:'.04em',textTransform:'uppercase'}}>
+                      {videoActive?'🎬 Cambiar video':'🎬 Reproducir video'}
+                    </button>
+                  )}
                   {onToggleWordCloud&&(
                     <button onClick={()=>{
                         if(wcActive){onToggleWordCloud('',true);setMoreOpen(false);}
@@ -2747,7 +3069,7 @@ function VideoOverlay({session,isAdmin,SID,onEnd}){
   if(!vid?.active) return null;
 
   return(
-    <div style={{position:'fixed',inset:0,zIndex:150,background:'#000',
+    <div style={{position:'fixed',inset:0,zIndex:160,background:'#000',
       display:'flex',alignItems:'center',justifyContent:'center'}}>
       <div style={{position:'relative',width:'100%',
         maxWidth:'min(100vw, calc(100vh * 16 / 9))',aspectRatio:'16 / 9',
@@ -6518,12 +6840,13 @@ function App(){
     await db.ref(`sessions/${SID.current}/presentation/active`).set(false);
   };
 
-  /* ── Video de YouTube sincronizado (admin controla; invitados siguen) ── */
+  /* ── Video de YouTube sincronizado (admin controla; invitados siguen) ──
+     El video puede coexistir con una presentación activa: se renderiza por
+     encima como una capa superior, y al cerrarlo la slide vuelve a quedar
+     visible. Útil para los testimonios en las slides 13–14. */
   const startVideo=async(catalogId)=>{
     const v=findVideo(catalogId);
     setRepasoChatOpen(false);
-    // Cierra presentación si hubiese una activa (mutuamente excluyentes).
-    await db.ref(`sessions/${SID.current}/presentation/active`).set(false);
     await db.ref(`sessions/${SID.current}/video`).set({
       active:true, videoId:v.youtubeId, title:v.title,
       state:'paused', position:0, updatedAt:Date.now(),
@@ -7255,6 +7578,7 @@ function App(){
           onToggleWordCloud={(question='')=>toggleWordCloud(question)}
           onToggleQR={()=>setQrVisible(v=>!v)}
           qrOn={qrVisible}
+          onOpenVideoMenu={()=>setVideoMenuOpen(true)}
         />
       )}
 
