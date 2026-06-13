@@ -8,7 +8,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
   <meta http-equiv="Pragma" content="no-cache"/>
   <meta http-equiv="Expires" content="0"/>
-  <title>Maranata Class · Las Condes</title>
+  <title>Mi Racha Espiritual</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -120,10 +120,52 @@ const{useState,useRef,useEffect,useCallback,useMemo}=React;
 /* ════════════════════════ CONSTANTES ════════════════════════ */
 // Versión de la app. Al desplegar una nueva, los clientes abiertos la detectan
 // y se recargan solos (ver auto-actualización en App). Subir este valor en cada deploy.
-const APP_VERSION='2026-06-06-semana10';
+const APP_VERSION='2026-06-13-mire-1';
 const AVATARS=['🦁','🐺','🦊','🐻','🐼','🦋','🦅','🐬','🦄','🐉','⚡','🌟','🔥','🌊','🌙','🎭','🎸','⚽','🎮','🏄'];
 const COLORS=['#ffd000','#ec4899','#22d3ee','#10b981','#6366f1','#ef4444','#8b5cf6','#fb923c'];
 const REACTIONS=[{id:'heart',e:'❤️'},{id:'pray',e:'🙏'},{id:'thumbs',e:'👍'},{id:'smile',e:'😊'},{id:'cry',e:'😢'},{id:'party',e:'🎉'}];
+
+/* ════════════════════════ CLASES (Gteen / JA) ════════════════════════
+   Reemplazar las URLs por las definitivas (Firebase Storage o GitHub raw).
+   El SVG inline funciona como fallback hasta que subas los logos reales. */
+const JA_LOGO_URL    = 'https://commons.wikimedia.org/wiki/Special:FilePath/Logotipo_JA.png';
+const GTEEN_LOGO_URL = "data:image/svg+xml;utf8,"+encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 220'>
+     <rect width='220' height='220' rx='28' fill='#ffffff'/>
+     <text x='34' y='128' font-family='Georgia,serif' font-weight='900' font-size='128' fill='#1E5BA8'>G</text>
+     <text x='104' y='128' font-family='Georgia,serif' font-style='italic' font-weight='900' font-size='62' fill='#E53935'>teen</text>
+     <text x='110' y='168' text-anchor='middle' font-family='Arial,sans-serif' font-weight='700' font-size='17' fill='#E53935' letter-spacing='1'>GENERACIÓN TEEN</text>
+     <text x='110' y='190' text-anchor='middle' font-family='Arial,sans-serif' font-weight='700' font-size='16' fill='#1E5BA8'>#voyxJesús</text>
+   </svg>`);
+
+const CLASSES = {
+  gteen: {
+    id:'gteen', label:'Gteen', full:'Generación Teen',
+    color:'#E53935', colorDark:'#B71C1C', accent:'#1E5BA8',
+    salaLabel:'Sala Gteen',
+    logo: GTEEN_LOGO_URL,
+  },
+  ja: {
+    id:'ja', label:'JA', full:'Jóvenes Adventistas',
+    color:'#1E5BA8', colorDark:'#0D47A1', accent:'#FFD000',
+    salaLabel:'Sala JA',
+    logo: JA_LOGO_URL,
+  },
+};
+
+// Niveles de racha mensual (sábados únicos en el mes en curso)
+// Iconos en vez de palabras para no juzgar.
+const STREAK_LEVELS = [
+  {min:0, icon:'😴', label:'Sin asistencia este mes',   color:'#9ca3af'},
+  {min:1, icon:'🤒', label:'1 sábado',                  color:'#94a3b8'},
+  {min:2, icon:'🙂', label:'2 sábados',                 color:'#fbbf24'},
+  {min:3, icon:'😊', label:'3 sábados',                 color:'#34d399'},
+  {min:4, icon:'🎉', label:'¡Mes completo!',            color:'#a855f7'},
+];
+const streakLevel = (n)=>{
+  const k=Math.min(4,Math.max(0,n|0));
+  return STREAK_LEVELS[k];
+};
 
 // Zonas de la sala — mapeadas al Plan MRNT
 // Layout mobile-first: Entrada banner arriba, 4 columnas verticales debajo
@@ -189,16 +231,35 @@ const AUTH_ERRORS={
 const getErr=code=>AUTH_ERRORS[code]||`Error: ${code}`;
 
 // Detectar zona según posición x,y
+// Simplificado: la sala tiene SOLO dos zonas visibles → "entrada" (banner arriba)
+// y "sala" (todo lo demás). El admin sigue disparando las actividades
+// (confra/repaso/juegos/mision/templo) por fase; todos los que estén en "sala"
+// participan.
 const detectZone=(x,y)=>{
-  for(const[key,z] of Object.entries(ZONES)){
-    if(x>=z.x1&&x<=z.x2&&y>=z.y1&&y<=z.y2) return key;
-  }
-  return 'entrada';
+  if(y<=14) return 'entrada';
+  return 'sala';
 };
 
-// Zona efectiva: si el campo 'zone' de RTDB no existe en las nuevas ZONES
-// (por ej. usuarios viejos con valores legacy), recalcula desde (x,y).
-const effectiveZone=u=>(u&&ZONES[u.zone])?u.zone:detectZone(u?.x??50,u?.y??50);
+// Zonas internas usadas por el RoomCanvas y la UI.
+// Mantenemos las claves MRNT (mision/confra/repaso/...) para que el header
+// muestre el color/letra de la fase activa, pero ya no son zonas visuales.
+const SALA_ZONE = {
+  label:'Sala', letter:'★', mrnt:'Encuentro',
+  color:'#1E5BA8', colorDark:'#0D47A1', bg:'rgba(30,91,168,.08)', icon:'★',
+  cardX:1.5, cardY:14, cardW:97, cardH:84,
+  x1:0, x2:100, y1:14, y2:100,
+};
+
+// Zona efectiva: si el usuario está en alguna zona MRNT legacy, lo tratamos
+// como "sala". Solo "entrada" se mantiene como zona separada.
+const effectiveZone=u=>{
+  if(!u) return 'entrada';
+  const z = u.zone;
+  if(z==='entrada') return 'entrada';
+  if(z==='sala') return 'sala';
+  // Recalcular desde (x,y) para valores legacy
+  return detectZone(u.x??50, u.y??50);
+};
 
 // Comprimir imagen a base64
 const compressImage=(file,maxSize=200)=>new Promise(resolve=>{
@@ -592,23 +653,51 @@ function MRNTDiagram({size=400,interactive=false,onSectorClick,activeSector,labe
 }
 
 // Avatar (foto o emoji)
-const AvatarBubble=({profile,size=42,glow=false,isMe=false})=>{
+const AvatarBubble=({profile,size=42,glow=false,isMe=false,showClassBadge=false})=>{
   const c=profile.color||'#ffd000';
+  const cls=profile.clase&&CLASSES[profile.clase];
+  // Tamaño del badge proporcional al avatar (mínimo 14, máximo 26)
+  const badgeSize=Math.max(14, Math.min(26, Math.round(size*0.42)));
   return(
     <div style={{
-      width:size,height:size,borderRadius:'50%',flexShrink:0,
-      border:`2.5px solid ${c}`,
-      background:`radial-gradient(circle at 35% 35%,${c}33,${c}11)`,
-      display:'flex',alignItems:'center',justifyContent:'center',
-      fontSize:profile.photo?undefined:size*.48,
-      overflow:'hidden',
-      animation:glow?'glowY 2.5s ease-in-out infinite':undefined,
-      boxShadow:isMe?undefined:`0 0 10px ${c}44`,
+      position:'relative',
+      width:size,
+      // Reserva espacio para el badge sin afectar layout cuando está oculto
+      height: showClassBadge&&cls ? size+Math.round(badgeSize*0.55) : size,
+      flexShrink:0,
     }}>
-      {profile.photo
-        ? <img src={profile.photo} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>
-        : <span>{profile.avatar||'👤'}</span>
-      }
+      <div style={{
+        width:size,height:size,borderRadius:'50%',
+        border:`2.5px solid ${c}`,
+        background:`radial-gradient(circle at 35% 35%,${c}33,${c}11)`,
+        display:'flex',alignItems:'center',justifyContent:'center',
+        fontSize:profile.photo?undefined:size*.48,
+        overflow:'hidden',
+        animation:glow?'glowY 2.5s ease-in-out infinite':undefined,
+        boxShadow:isMe?undefined:`0 0 10px ${c}44`,
+      }}>
+        {profile.photo
+          ? <img src={profile.photo} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>
+          : <span>{profile.avatar||'👤'}</span>
+        }
+      </div>
+      {showClassBadge&&cls&&(
+        <div title={cls.full} style={{
+          position:'absolute',
+          left:'50%',
+          top: size - Math.round(badgeSize*0.25),
+          transform:'translateX(-50%)',
+          width:badgeSize,height:badgeSize,borderRadius:'50%',
+          background:'#fff',
+          border:`1.5px solid ${cls.color}`,
+          boxShadow:'0 2px 6px rgba(0,0,0,.2)',
+          overflow:'hidden',
+          display:'flex',alignItems:'center',justifyContent:'center',
+        }}>
+          <img src={cls.logo} alt={cls.label}
+            style={{width:'100%',height:'100%',objectFit:'contain',padding:1}}/>
+        </div>
+      )}
     </div>
   );
 };
@@ -665,9 +754,12 @@ function TimerDisplay({remaining,color='#ffd000',large=false}){
 }
 
 /* ════════════════════════ ROOM CANVAS ════════════════════════ */
-function RoomCanvas({users,myId,session,onDragMove,roomRef,full,reactions}){
+function RoomCanvas({users,myId,session,onDragMove,roomRef,full,reactions,classKey}){
   const entries=Object.entries(users);
   const phase=session?.phase||'waiting';
+  const cls = (classKey&&CLASSES[classKey])||CLASSES.gteen;
+  const salaActive = phase!=='waiting' && phase!=='entrada';
+  const phaseZone = ZONES[phase]; // info de fase para el highlight (color/letra/label)
   const isDrag=useRef(false);
   const lastT=useRef(0);
 
@@ -693,38 +785,48 @@ function RoomCanvas({users,myId,session,onDragMove,roomRef,full,reactions}){
 
   const handleDragEnd=useCallback(()=>{ isDrag.current=false; },[]);
 
+  // Solo dos cards visuales: Entrada (banner arriba) y Sala (todo el resto).
+  // El color de la Sala viene de la clase del usuario (Gteen rojo / JA azul).
+  // Cuando hay una fase activa, la Sala adopta el color de la actividad.
   const zoneCardStyle=(key)=>{
-    const z=ZONES[key];
-    const isActive=phase===key;
     const isEntrada=key==='entrada';
-    const isRepaso=key==='repaso';
-    const isJuegos=key==='juegos';
-    // Entrada mantiene fondo claro; columnas MRNT usan color sólido
-    const tint=isEntrada
-      ? (isActive?'rgba(255,255,255,.95)':'rgba(255,255,255,.85)')
-      : z.color;
-    const borderW=isActive?3:2;
-    const borderColor=isEntrada?'#0a0e2e':z.color;
-    // Repaso y Juegos comparten una columna unificada con un divisor naranja leve
-    const borderRadius=isRepaso?'14px 14px 0 0':isJuegos?'0 0 14px 14px':14;
+    if(isEntrada){
+      const z=ZONES.entrada;
+      const isActive=phase==='entrada'||phase==='waiting';
+      return{
+        position:'absolute',
+        left:`${z.cardX}%`,top:`${z.cardY}%`,
+        width:`${z.cardW}%`,height:`${z.cardH}%`,
+        background:'rgba(255,255,255,.92)',
+        border:`${isActive?3:2}px solid #0a0e2e`,
+        borderRadius:14,
+        overflow:'hidden',transition:'all .3s',
+        boxShadow:`0 3px 10px rgba(10,14,46,.10)`,
+        pointerEvents:'none',
+        display:'flex',flexDirection:'column',
+        padding:full?'10px 14px':'6px 10px',
+        backdropFilter:'blur(2px)',
+      };
+    }
+    // Sala
+    const color = salaActive&&phaseZone ? phaseZone.color : cls.color;
+    const colorDark = salaActive&&phaseZone ? phaseZone.colorDark : cls.colorDark;
+    const z=SALA_ZONE;
+    const borderW=salaActive?4:3;
     return{
       position:'absolute',
       left:`${z.cardX}%`,top:`${z.cardY}%`,
       width:`${z.cardW}%`,height:`${z.cardH}%`,
-      background:tint,
-      borderTop:isJuegos?'1px solid rgba(255,255,255,.45)':`${borderW}px solid ${borderColor}`,
-      borderBottom:isRepaso?'1px solid rgba(255,255,255,.45)':`${borderW}px solid ${borderColor}`,
-      borderLeft:`${borderW}px solid ${borderColor}`,
-      borderRight:`${borderW}px solid ${borderColor}`,
-      borderRadius,
-      overflow:'hidden',
-      transition:'all .3s',
-      boxShadow:isActive
-        ? `0 8px 22px ${isEntrada?'rgba(10,14,46,.18)':z.color+'55'}, 0 0 0 4px ${isEntrada?'rgba(10,14,46,.08)':z.color+'22'}`
-        : `0 3px 10px ${isEntrada?'rgba(10,14,46,.08)':z.color+'22'}`,
+      background:color,
+      border:`${borderW}px solid ${colorDark}`,
+      borderRadius:18,
+      overflow:'hidden',transition:'all .3s',
+      boxShadow:salaActive
+        ? `0 10px 30px ${color}55, 0 0 0 5px ${color}22`
+        : `0 4px 14px ${color}33`,
       pointerEvents:'none',
       display:'flex',flexDirection:'column',
-      padding:isEntrada?(full?'10px 14px':'6px 10px'):(full?'14px 8px':'8px 4px'),
+      padding:full?'14px 18px':'10px 12px',
       backdropFilter:'blur(2px)',
     };
   };
@@ -739,93 +841,92 @@ function RoomCanvas({users,myId,session,onDragMove,roomRef,full,reactions}){
         background:'#ffffff',touchAction:'none',userSelect:'none',
       }}>
 
-      {/* Zone cards: Entrada banner arriba + 4 columnas verticales (M · R · N · T).
-          La columna N contiene Repaso (mitad superior) y Juegos (mitad inferior). */}
-      {['entrada','mision','confra','repaso','juegos','templo'].map(key=>{
-        const z=ZONES[key];
-        const count=entries.filter(([,u])=>effectiveZone(u)===key).length;
-        const isActive=phase===key;
-        const isEntrada=key==='entrada';
-        // Todas las letras MRNT del mismo tamaño para alinearse visualmente
-        const letterSize=full?88:66;
-        return(
-          <div key={key} style={zoneCardStyle(key)}>
-            {isEntrada?(
-              <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:full?10:8,
-                height:'100%'}}>
-                <div style={{fontSize:full?22:18}}>🚪</div>
-                <div style={{lineHeight:1.05}}>
-                  <div style={{
-                    fontSize:full?9:9,fontFamily:'Barlow Condensed,sans-serif',fontWeight:700,
-                    color:'#3b3f5a',textTransform:'uppercase',letterSpacing:'.22em',
-                  }}>Llegada</div>
-                  <div style={{
-                    fontSize:full?17:14,fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
-                    color:'#0a0e2e',textTransform:'uppercase',letterSpacing:'.04em',marginTop:2,
-                  }}>Entrada</div>
+      {/* Solo 2 cards visuales: Entrada (banner arriba) + Sala (Gteen / JA). */}
+      {(()=>{
+        const entradaCount = entries.filter(([,u])=>effectiveZone(u)==='entrada').length;
+        const salaCount    = entries.filter(([,u])=>effectiveZone(u)==='sala').length;
+        return(<>
+          {/* ─ Entrada ─ */}
+          <div style={zoneCardStyle('entrada')}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:full?10:8,
+              height:'100%'}}>
+              <div style={{fontSize:full?22:18}}>🚪</div>
+              <div style={{lineHeight:1.05}}>
+                <div style={{
+                  fontSize:9,fontFamily:'Barlow Condensed,sans-serif',fontWeight:700,
+                  color:'#3b3f5a',textTransform:'uppercase',letterSpacing:'.22em',
+                }}>Llegada</div>
+                <div style={{
+                  fontSize:full?17:14,fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+                  color:'#0a0e2e',textTransform:'uppercase',letterSpacing:'.04em',marginTop:2,
+                }}>Entrada</div>
+              </div>
+              {entradaCount>0&&(
+                <div style={{
+                  fontSize:full?13:12,fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+                  color:'#0a0e2e',background:'#ffd000',
+                  padding:'2px 9px',borderRadius:20,marginLeft:full?8:6,
+                }}>{entradaCount}</div>
+              )}
+            </div>
+          </div>
+
+          {/* ─ Sala (Gteen / JA) ─ */}
+          <div style={zoneCardStyle('sala')}>
+            <div style={{
+              display:'flex',alignItems:'center',justifyContent:'space-between',
+              gap:full?14:10,marginBottom:full?10:6,
+            }}>
+              {/* Logo de la clase + título */}
+              <div style={{display:'flex',alignItems:'center',gap:full?12:8,minWidth:0}}>
+                <div style={{
+                  width:full?54:38,height:full?54:38,borderRadius:'50%',
+                  background:'#fff',padding:full?5:3,flexShrink:0,
+                  boxShadow:'0 2px 8px rgba(0,0,0,.18)',
+                  display:'flex',alignItems:'center',justifyContent:'center',
+                }}>
+                  <img src={cls.logo} alt={cls.label}
+                    style={{width:'100%',height:'100%',objectFit:'contain'}}/>
                 </div>
-                {count>0&&(
+                <div style={{lineHeight:1.05,minWidth:0}}>
                   <div style={{
-                    fontSize:full?13:12,fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
-                    color:'#0a0e2e',background:'#ffd000',
-                    padding:full?'2px 9px':'2px 9px',borderRadius:20,marginLeft:full?8:6,
-                  }}>{count}</div>
+                    fontSize:full?10:9,fontFamily:'Barlow Condensed,sans-serif',fontWeight:700,
+                    color:'#fff',textTransform:'uppercase',letterSpacing:'.22em',opacity:.9,
+                  }}>Encuentro</div>
+                  <div style={{
+                    fontSize:full?22:16,fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+                    color:'#fff',textTransform:'uppercase',letterSpacing:'.04em',marginTop:2,
+                    whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',
+                  }}>{cls.salaLabel}</div>
+                </div>
+              </div>
+              {/* En vivo + count */}
+              <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6,flexShrink:0}}>
+                {salaActive&&phaseZone&&(
+                  <div style={{
+                    background:'#fff',color:phaseZone.colorDark,
+                    fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+                    fontSize:full?10:9,letterSpacing:'.12em',textTransform:'uppercase',
+                    padding:full?'3px 9px':'2px 7px',borderRadius:20,
+                    boxShadow:'0 2px 6px rgba(0,0,0,.18)',
+                  }}>● {phaseZone.label}</div>
+                )}
+                {salaCount>0&&(
+                  <div style={{
+                    display:'flex',alignItems:'center',gap:6,
+                    fontSize:full?12:11,fontFamily:'Barlow Condensed,sans-serif',fontWeight:800,
+                    color:'#fff',letterSpacing:'.06em',textTransform:'uppercase',
+                  }}>
+                    <div style={{width:6,height:6,borderRadius:'50%',
+                      background:'#fff',boxShadow:'0 0 6px rgba(255,255,255,.8)'}}/>
+                    <span>{salaCount} en sala</span>
+                  </div>
                 )}
               </div>
-            ):(<>
-              {/* Letra MRNT prominente — oculta en Juegos (comparte la "N" con Repaso) */}
-              {key!=='juegos'&&(
-                <div style={{
-                  fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
-                  fontSize:letterSize,lineHeight:1,
-                  color:'#fff',textAlign:'center',
-                  textShadow:'0 2px 10px rgba(0,0,0,.18)',
-                  marginTop:full?4:2,
-                }}>{z.letter}</div>
-              )}
-              {/* MRNT label — oculto en Juegos (sub-sección bajo Nutrición) */}
-              {key!=='juegos'&&(
-                <div style={{
-                  fontSize:full?10:9,fontFamily:'Barlow Condensed,sans-serif',fontWeight:700,
-                  color:'#fff',textTransform:'uppercase',letterSpacing:'.18em',
-                  textAlign:'center',marginTop:full?6:4,
-                }}>{z.mrnt}</div>
-              )}
-              {/* Sala name */}
-              <div style={{
-                fontSize:full?14:12,fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
-                color:'#fff',textTransform:'uppercase',letterSpacing:'.04em',
-                textAlign:'center',marginTop:full?3:2,padding:'0 2px',
-                whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',
-              }}>{full?z.label:(z.label.split(' ')[0])}</div>
-              {/* Spacer + count */}
-              <div style={{flex:1}}/>
-              {count>0&&(
-                <div style={{
-                  display:'flex',alignItems:'center',justifyContent:'center',
-                  gap:full?6:4,marginBottom:full?4:3,
-                  fontSize:full?11:11,fontFamily:'Barlow Condensed,sans-serif',fontWeight:700,
-                  color:'#fff',letterSpacing:'.06em',textTransform:'uppercase',
-                }}>
-                  <div style={{width:full?6:5,height:full?6:5,borderRadius:'50%',
-                    background:'#fff',boxShadow:'0 0 6px rgba(255,255,255,.7)'}}/>
-                  <span>{count}</span>
-                </div>
-              )}
-            </>)}
-            {isActive&&!isEntrada&&(
-              <div style={{
-                position:'absolute',top:full?8:4,right:full?8:4,
-                background:'#fff',color:z.colorDark,
-                fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
-                fontSize:full?9:8,letterSpacing:'.12em',textTransform:'uppercase',
-                padding:full?'3px 7px':'2px 6px',borderRadius:20,
-                boxShadow:'0 2px 6px rgba(0,0,0,.18)',
-              }}>● En vivo</div>
-            )}
+            </div>
           </div>
-        );
-      })}
+        </>);
+      })()}
 
       {/* Hint inferior */}
       {!full&&(
@@ -843,8 +944,14 @@ function RoomCanvas({users,myId,session,onDragMove,roomRef,full,reactions}){
           background:'#fff',border:'1px solid rgba(10,14,46,.08)',
           borderRadius:14,padding:'10px 26px',textAlign:'center',
           boxShadow:'0 6px 22px rgba(10,14,46,.08)',zIndex:20}}>
-          <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,fontSize:22,
-            color:'#0a0e2e',letterSpacing:'.06em',textTransform:'uppercase'}}>MARANATA CLASS</div>
+          <div style={{display:'flex',alignItems:'center',gap:10,justifyContent:'center'}}>
+            <img src={CLASSES.gteen.logo} alt="Gteen"
+              style={{width:28,height:28,objectFit:'contain'}}/>
+            <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,fontSize:22,
+              color:'#0a0e2e',letterSpacing:'.06em',textTransform:'uppercase'}}>Mi Racha Espiritual</div>
+            <img src={CLASSES.ja.logo} alt="JA"
+              style={{width:28,height:28,objectFit:'contain'}}/>
+          </div>
           <div style={{fontSize:11,color:'#3b3f5a',letterSpacing:'.06em',marginTop:2,
             fontFamily:'Barlow Condensed,sans-serif',fontWeight:600,textTransform:'uppercase'}}>
             {new Date().toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'long'})}
@@ -904,7 +1011,7 @@ function RoomCanvas({users,myId,session,onDragMove,roomRef,full,reactions}){
                 ))}
               </div>
             )}
-            <AvatarBubble profile={u} size={full?58:42} glow={uid===myId} isMe={uid===myId}/>
+            <AvatarBubble profile={u} size={full?58:42} glow={uid===myId} isMe={uid===myId} showClassBadge={true}/>
             <div style={{
               marginTop:-2,fontSize:full?11:8,color:'#0a0e2e',
               background:'#fff',padding:'2px 9px',borderRadius:20,
@@ -1392,7 +1499,7 @@ function RepasoChat({msgs,session,myId,users,onSend,onClose,SID,chatReactions}){
             📖 Repaso Bíblico
           </div>
           <div style={{fontSize:10,color:'var(--muted)',marginTop:1}}>
-            {Object.values(users).filter(u=>u.zone==='repaso').length} en sala ·{' '}
+            {Object.values(users).filter(u=>effectiveZone(u)==='sala').length} en sala ·{' '}
             <span style={{color:isOver?'#ef4444':'#3b82f6',fontWeight:600}}>
               {isOver?'Tiempo extra':'Tiempo: '+formatTime(remaining)}
             </span>
@@ -1400,7 +1507,7 @@ function RepasoChat({msgs,session,myId,users,onSend,onClose,SID,chatReactions}){
         </div>
         <div style={{display:'flex',gap:6,alignItems:'center'}}>
           <div style={{display:'flex',gap:3}}>
-            {Object.values(users).filter(u=>u.zone==='repaso').slice(0,5).map((u,i)=>(
+            {Object.values(users).filter(u=>effectiveZone(u)==='sala').slice(0,5).map((u,i)=>(
               <div key={i} style={{width:24,height:24,borderRadius:'50%',
                 background:`${u.color||'#3b82f6'}22`,border:`1.5px solid ${u.color||'#3b82f6'}`,
                 display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,
@@ -3592,7 +3699,7 @@ function MisionActivity({session,users,myId,SID,isAdmin,onClose}){
             ✈️ Misión · {mode==='commitments'?'Compromiso':'Proyectos'}
           </div>
           <div style={{fontSize:10,color:'var(--muted)',marginTop:1}}>
-            {Object.values(users).filter(u=>u.zone==='mision').length} en sala ·{' '}
+            {Object.values(users).filter(u=>effectiveZone(u)==='sala').length} en sala ·{' '}
             <span style={{color:isOver?'#ef4444':'#3b82f6',fontWeight:600}}>
               {isOver?'Tiempo extra':'Tiempo: '+formatTime(remaining)}
             </span>
@@ -4434,11 +4541,11 @@ function AdminPanel({session,users,onStartConfra,onNextSpeaker,onEndConfra,onSta
   const[wcQ,setWcQ]=useState('');
   const phase=session?.phase||'waiting';
   const allUsers=Object.entries(users);
-  const confraUsers=Object.entries(users).filter(([,u])=>u.zone==='confra');
-  const repasoUsers=Object.entries(users).filter(([,u])=>u.zone==='repaso');
-  const juegosUsers=Object.entries(users).filter(([,u])=>u.zone==='juegos');
-  const misionUsers=Object.entries(users).filter(([,u])=>u.zone==='mision');
-  const temploUsers=Object.entries(users).filter(([,u])=>u.zone==='templo');
+  const confraUsers=Object.entries(users).filter(([,u])=>effectiveZone(u)==='sala');
+  const repasoUsers=Object.entries(users).filter(([,u])=>effectiveZone(u)==='sala');
+  const juegosUsers=Object.entries(users).filter(([,u])=>effectiveZone(u)==='sala');
+  const misionUsers=Object.entries(users).filter(([,u])=>effectiveZone(u)==='sala');
+  const temploUsers=Object.entries(users).filter(([,u])=>effectiveZone(u)==='sala');
 
   const phaseColor={waiting:'var(--muted)',confra:'#eab308',repaso:'#fb923c',juegos:'#fdba74',mision:'#3b82f6',templo:'#7c3aed'}[phase];
 
@@ -4726,6 +4833,7 @@ function EditProfileModal({profile,onSave,onClose}){
   const[avatar,setAvatar]=useState(profile.avatar||null);
   const[color, setColor] =useState(profile.color ||'#ffd000');
   const[photo, setPhoto] =useState(profile.photo ||null);
+  const[clase, setClase] =useState(profile.clase ||'gteen');
   const[saving,setSaving]=useState(false);
   const[err,   setErr]   =useState('');
   const fileRef=useRef();
@@ -4742,7 +4850,7 @@ function EditProfileModal({profile,onSave,onClose}){
   const handleSave=async()=>{
     if(!name.trim()||saving) return;
     setSaving(true);
-    try{ await onSave({name:name.trim(),avatar,color,photo}); }
+    try{ await onSave({name:name.trim(),avatar,color,photo,clase}); }
     catch(e){ setErr('Error al guardar. Intenta de nuevo.'); setSaving(false); }
   };
 
@@ -4770,7 +4878,7 @@ function EditProfileModal({profile,onSave,onClose}){
         {/* Foto de perfil */}
         <div style={{marginBottom:16,display:'flex',alignItems:'center',gap:14}}>
           <div style={{position:'relative',cursor:'pointer'}} onClick={()=>fileRef.current?.click()}>
-            <AvatarBubble profile={{...profile,photo,avatar,color}} size={72}/>
+            <AvatarBubble profile={{...profile,photo,avatar,color,clase}} size={72} showClassBadge={true}/>
             <div style={{
               position:'absolute',bottom:-2,right:-2,
               width:22,height:22,borderRadius:'50%',
@@ -4835,7 +4943,7 @@ function EditProfileModal({profile,onSave,onClose}){
         </div>
 
         {/* Color */}
-        <div style={{marginBottom:20}}>
+        <div style={{marginBottom:14}}>
           <label style={{fontSize:10,fontWeight:700,color:'var(--muted)',
             textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:8,
             fontFamily:'Barlow Condensed,sans-serif'}}>Color de aura</label>
@@ -4847,6 +4955,41 @@ function EditProfileModal({profile,onSave,onClose}){
                 boxShadow:color===c?`0 0 14px ${c}`:'none',transition:'all .15s',
               }}/>
             ))}
+          </div>
+        </div>
+
+        {/* Selector de clase */}
+        <div style={{marginBottom:20}}>
+          <label style={{fontSize:10,fontWeight:700,color:'var(--muted)',
+            textTransform:'uppercase',letterSpacing:'.08em',display:'block',marginBottom:8,
+            fontFamily:'Barlow Condensed,sans-serif'}}>Clase a la que perteneces</label>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+            {['gteen','ja'].map(k=>{
+              const c=CLASSES[k];
+              const sel=clase===k;
+              return(
+                <button key={k} onClick={()=>setClase(k)} style={{
+                  display:'flex',alignItems:'center',gap:9,
+                  background:sel?`${c.color}22`:'rgba(255,255,255,.03)',
+                  border:sel?`2px solid ${c.color}`:'2px solid rgba(255,255,255,.06)',
+                  borderRadius:10,padding:'8px 10px',color:'#fff',cursor:'pointer',
+                  transition:'all .15s',
+                }}>
+                  <div style={{width:30,height:30,borderRadius:'50%',background:'#fff',
+                    padding:3,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <img src={c.logo} alt={c.label} style={{width:'100%',height:'100%',objectFit:'contain'}}/>
+                  </div>
+                  <div style={{textAlign:'left',lineHeight:1.05}}>
+                    <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+                      fontSize:14,letterSpacing:'.04em',textTransform:'uppercase'}}>{c.label}</div>
+                    <div style={{fontSize:9,opacity:.7,marginTop:1}}>{c.full}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <div style={{fontSize:10,color:'var(--muted)',marginTop:6}}>
+            Al cambiar de clase, la app se recarga para entrar a la nueva sala.
           </div>
         </div>
 
@@ -5242,7 +5385,7 @@ function AdminStatsModal({onClose}){
 }
 
 /* ════════════════════════ SCREEN VIEW (PROYECCIÓN) ════════════════════════ */
-function ScreenView({users,session,msgs,reactions,onExit}){
+function ScreenView({users,session,msgs,reactions,onExit,classKey}){
   const phase=session?.phase||'waiting';
   const confra=session?.confra;
   const repaso=session?.repaso;
@@ -5259,7 +5402,8 @@ function ScreenView({users,session,msgs,reactions,onExit}){
       <div ref={roomRef} style={{width:'100%',height:'100%'}}>
         <RoomCanvas users={users} myId={null} session={session}
           selectedChar={false} onSelectChar={()=>{}} onMoveTo={()=>{}}
-          roomRef={roomRef} full={true} reactions={reactions} moveTarget={null}/>
+          roomRef={roomRef} full={true} reactions={reactions} moveTarget={null}
+          classKey={classKey}/>
       </div>
 
       {/* Código QR de acceso — esquina superior izquierda, visible para que la
@@ -5801,7 +5945,9 @@ function App(){
   const surveyAllNotifyShownRef=useRef(false);
 
   const UID      =useRef(null);
-  const SID      =useRef(getSID());
+  // SID se prefija con la clase del usuario para separar las salas (gteen-YYYY-MM-DD vs ja-YYYY-MM-DD).
+  // Se actualiza en cuanto cargamos/elegimos la clase del perfil.
+  const SID      =useRef('gteen-'+getSID());
   const roomRef  =useRef(null);
   const sessionRef=useRef(null);
   const lastPosRef=useRef({zone:'entrada',x:49,y:9});
@@ -5852,12 +5998,15 @@ function App(){
             });
           }
           if(p&&p.name){
-            setProfile({...p,isAdmin:adminFlag});
+            // Compatibilidad: usuarios previos sin "clase" → default gteen (pueden cambiarlo en perfil).
+            const cls = (p.clase&&CLASSES[p.clase])?p.clase:'gteen';
+            const fullProfile = {...p,clase:cls,isAdmin:adminFlag};
+            SID.current = `${cls}-${getSID()}`;
+            setProfile(fullProfile);
             setIsAdmin(adminFlag);
-            await joinRoom(user.uid,p);
+            await joinRoom(user.uid,fullProfile);
             setView('room');
           } else {
-            // Setup: dejamos el flag listo para que saveProfile lo persista.
             setIsAdmin(adminFlag);
             setView('setup');
           }
@@ -5921,6 +6070,7 @@ function App(){
       const uRef=db.ref(`rooms/${sid}/users/${uid}`);
       uRef.set({
         name:p.name,avatar:p.avatar,color:p.color,photo:p.photo||null,
+        clase:p.clase||'gteen',
         zone:pos.zone,x:pos.x,y:pos.y,joinedAt:Date.now(),
       });
       uRef.onDisconnect().remove();
@@ -5952,7 +6102,7 @@ function App(){
     // recibe el chat forzado, así su panel de configuración queda siempre libre.
     const presActive=!!session.presentation?.active;
     if(p==='repaso'&&session.repaso?.active){
-      if(!isAdmin&&!presActive&&users[UID.current]?.zone==='repaso'&&!repasoAutoRef.current){
+      if(!isAdmin&&!presActive&&effectiveZone(users[UID.current])==='sala'&&!repasoAutoRef.current){
         setRepasoChatOpen(true);
         repasoAutoRef.current=true;
       }
@@ -5966,7 +6116,7 @@ function App(){
 
     // Misión — auto-abrir actividad para usuarios en zona misión o admin
     if(p==='mision'&&session.mision?.active){
-      if(users[UID.current]?.zone==='mision'||isAdmin) setMisionOpen(true);
+      if(effectiveZone(users[UID.current])==='sala'||isAdmin) setMisionOpen(true);
     }
 
     // Nube de palabras
@@ -6020,16 +6170,17 @@ function App(){
     }
   },[users,surveyResponses,session?.survey?.active,isAdmin]);
 
-  /* ── Prompt para integrarse a una actividad activa al entrar a su zona ── */
+  /* ── Prompt para integrarse a una actividad activa al entrar a la sala ──
+     Zonas simplificadas: solo "entrada" y "sala". Cualquier fase activa
+     (confra/repaso/juegos/mision/templo) pregunta al usuario que entra a "sala". */
   useEffect(()=>{
     const me=users[UID.current];
     if(!me) return;
     const p=session?.phase;
-    const myZone=me.zone;
+    const myZone=effectiveZone(me);
     const prevZone=prevZoneRef.current;
     prevZoneRef.current=myZone;
 
-    // Si la fase cambia o no hay actividad: limpiar prompt, rechazos y lock
     if(!p||p==='waiting'){
       declinedZonesRef.current.clear();
       lockedPhaseRef.current=null;
@@ -6037,11 +6188,10 @@ function App(){
       return;
     }
 
-    // Auto-integración: solo cuando la fase recién cambia y el usuario YA está
-    // en la zona (típicamente estaba ahí cuando el admin inició la fase).
     const phaseChanged=prevPhaseRef.current!==p;
     prevPhaseRef.current=p;
-    if(phaseChanged&&myZone===p&&!declinedZonesRef.current.has(p)){
+    // Auto-integración: si la fase recién cambia y el usuario YA está en la sala.
+    if(phaseChanged&&myZone==='sala'&&!declinedZonesRef.current.has(p)){
       if(p==='confra'){
         const q=session?.confra?.queue||{};
         const arr=Array.isArray(q)?q:Object.values(q);
@@ -6051,18 +6201,16 @@ function App(){
       }
     }
 
-    // Admin nunca recibe el prompt
     if(isAdmin){ if(joinPrompt) setJoinPrompt(null); return; }
 
-    // Si el usuario salió de la zona de la fase, limpiar el rechazo
-    // para que la próxima entrada vuelva a preguntar
-    if(prevZone===p&&myZone!==p){
+    // Si salió de la sala, limpiar rechazo y prompt
+    if(prevZone==='sala'&&myZone!=='sala'){
       declinedZonesRef.current.delete(p);
       if(joinPrompt?.phase===p) setJoinPrompt(null);
     }
 
-    // Si entró a la zona de la fase y no está integrado todavía, preguntar
-    if(myZone===p){
+    // Si está en la sala y no está integrado, preguntar
+    if(myZone==='sala'){
       let alreadyIn=lockedPhaseRef.current===p;
       if(p==='confra'){
         const q=session?.confra?.queue||{};
@@ -6118,6 +6266,7 @@ function App(){
     const uRef=db.ref(`rooms/${SID.current}/users/${uid}`);
     await uRef.set({
       name:p.name,avatar:p.avatar,color:p.color,photo:p.photo||null,
+      clase:p.clase||'gteen',
       zone:'entrada',x:49,y:9,joinedAt:Date.now(),
     });
     uRef.onDisconnect().remove();
@@ -6141,21 +6290,36 @@ function App(){
     if(!uid) return;
     setSetupSaving(true); setSetupError('');
     try{
-      await db.ref(`profiles/${uid}`).set({...newProfile,isAdmin:isAdmin||false});
+      const cls = (newProfile.clase&&CLASSES[newProfile.clase])?newProfile.clase:'gteen';
+      const oldSID = SID.current;
+      const newSID = `${cls}-${getSID()}`;
+      const profileToSave = {...newProfile, clase:cls, isAdmin:isAdmin||false};
+
+      await db.ref(`profiles/${uid}`).set(profileToSave);
+
+      // Si cambió de clase, retirarse de la sala anterior antes de unirse a la nueva.
+      if(oldSID!==newSID){
+        try{ await db.ref(`rooms/${oldSID}/users/${uid}`).remove(); }catch(e){}
+        SID.current = newSID;
+      }
+
       try{
         await db.ref(`rooms/${SID.current}/users/${uid}`).update({
           name:newProfile.name,avatar:newProfile.avatar,
           color:newProfile.color,photo:newProfile.photo||null,
+          clase:cls,
         });
       }catch(e){}
-      setProfile(newProfile);
+      setProfile(profileToSave);
       setEditOpen(false);
       if(view==='setup'){
-        await joinRoom(uid,newProfile);
-        // Solo enviar si es la primera vez (perfil recién creado)
+        await joinRoom(uid,profileToSave);
         const emailKey=auth.currentUser?.email||'';
         sendWelcomeEmail(emailKey, newProfile.name);
         setView('room');
+      } else if(oldSID!==newSID){
+        // Re-suscribir al cambiar de clase: recargar para refrescar listeners.
+        window.location.reload();
       }
     }catch(e){
       console.error(e);
@@ -6445,6 +6609,7 @@ function App(){
   const phase=session?.phase||'waiting';
   const usersArr=Object.entries(users);
   const attSessions=Object.keys(myAtt).sort().reverse();
+  // Streak histórico (días consecutivos asistidos, sigue usándose donde aplique)
   const streak=(()=>{
     if(!attSessions.length) return 0;
     let s=1;
@@ -6454,6 +6619,27 @@ function App(){
     }
     return s;
   })();
+  // Mi Racha Espiritual del mes en curso:
+  // cuenta sábados únicos asistidos en el mes en curso (0–4, tope 4).
+  // Los keys de attendance pueden ser "2026-06-13" (formato viejo) o
+  // "gteen-2026-06-13" / "ja-2026-06-13" (con prefijo de clase).
+  const monthlyStreak=(()=>{
+    const now=new Date();
+    const ym=now.toISOString().slice(0,7); // YYYY-MM
+    const sats=new Set();
+    for(const k of attSessions){
+      // Extraer fragmento de fecha YYYY-MM-DD del key (con o sin prefijo de clase)
+      const m=k.match(/\d{4}-\d{2}-\d{2}/);
+      if(!m) continue;
+      const date=m[0];
+      if(!date.startsWith(ym)) continue;
+      const d=new Date(date+'T12:00:00');
+      if(d.getDay()===6) sats.add(date);
+    }
+    return Math.min(4, sats.size);
+  })();
+  // Clase del usuario (gteen|ja) — default gteen si aún no eligió.
+  const userClass = (profile.clase&&CLASSES[profile.clase]) ? profile.clase : 'gteen';
 
   /* ════ LOADING ════ */
   if(view==='loading') return(
@@ -6523,7 +6709,7 @@ function App(){
         <div style={{display:'flex',justifyContent:'center',marginBottom:14}}>
           <div style={{position:'relative',cursor:'pointer'}}
             onClick={()=>document.getElementById('setupPhoto')?.click()}>
-            <AvatarBubble profile={profile} size={70}/>
+            <AvatarBubble profile={profile} size={70} showClassBadge={true}/>
             <div style={{position:'absolute',bottom:-2,right:-2,width:22,height:22,
               borderRadius:'50%',background:'#ffd000',display:'flex',
               alignItems:'center',justifyContent:'center',fontSize:12,color:'#07091f'}}>
@@ -6560,7 +6746,7 @@ function App(){
             ))}
           </div>
         </div>
-        <div style={{marginBottom:20}}>
+        <div style={{marginBottom:14}}>
           <label style={labelStyle}>Color de aura</label>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
             {COLORS.map(c=>(
@@ -6572,9 +6758,40 @@ function App(){
             ))}
           </div>
         </div>
+
+        {/* Selector de clase: Gteen o JA */}
+        <div style={{marginBottom:20}}>
+          <label style={labelStyle}>¿A qué clase perteneces?</label>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:6}}>
+            {['gteen','ja'].map(k=>{
+              const c=CLASSES[k];
+              const sel=profile.clase===k;
+              return(
+                <button key={k} onClick={()=>setProfile(p=>({...p,clase:k}))} style={{
+                  display:'flex',alignItems:'center',gap:10,
+                  background:sel?`${c.color}22`:'rgba(255,255,255,.03)',
+                  border:sel?`2px solid ${c.color}`:'2px solid rgba(255,255,255,.08)',
+                  borderRadius:12,padding:'10px 12px',color:'#fff',cursor:'pointer',
+                  boxShadow:sel?`0 0 14px ${c.color}55`:'none',transition:'all .15s',
+                }}>
+                  <div style={{width:34,height:34,borderRadius:'50%',background:'#fff',
+                    padding:3,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <img src={c.logo} alt={c.label} style={{width:'100%',height:'100%',objectFit:'contain'}}/>
+                  </div>
+                  <div style={{textAlign:'left',lineHeight:1.1}}>
+                    <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+                      fontSize:15,letterSpacing:'.04em',textTransform:'uppercase'}}>{c.label}</div>
+                    <div style={{fontSize:10,opacity:.7,marginTop:2}}>{c.full}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <button onClick={()=>saveProfile(profile)}
-          disabled={!profile.name.trim()||setupSaving}
-          style={btnYellow(!profile.name.trim()||setupSaving)}>
+          disabled={!profile.name.trim()||!profile.clase||setupSaving}
+          style={btnYellow(!profile.name.trim()||!profile.clase||setupSaving)}>
           {setupSaving
             ?<><Spinner size={18} color="#07091f"/>Guardando...</>
             :'Entrar a la sala ✨'}
@@ -6597,6 +6814,7 @@ function App(){
     <ScreenView
       users={users} session={session} msgs={msgs} reactions={reactions}
       onExit={()=>setView('room')}
+      classKey={userClass}
     />
   );
 
@@ -6621,29 +6839,50 @@ function App(){
         display:'flex',alignItems:'center',justifyContent:'space-between',
         flexShrink:0,minHeight:isMobile?52:56,gap:isMobile?6:8,
       }}>
-        {/* IZQ — Logo + estado */}
+        {/* IZQ — Logos Gteen+JA + título Mi Racha Espiritual + estado */}
         <div style={{display:'flex',alignItems:'center',
           gap:isMobile?8:10,minWidth:0,flex:'1 1 auto',overflow:'hidden'}}>
-          <div style={{display:'flex',alignItems:'center',gap:isMobile?7:10,flexShrink:0}}>
-            <svg width={isMobile?28:32} height={isMobile?21:24} viewBox="0 0 80 60">
-              <polygon points="8,54 72,54 58,10" fill="#ffd000"/>
-              <g stroke="#0a0e2e" strokeWidth="3.4" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M28 42L28 18Q28 15 31 15L40 17L40 42"/>
-                <path d="M52 42L52 18Q52 15 49 15L40 17L40 42"/>
-                <path d="M28 42Q34 40 40 42Q46 40 52 42"/>
-              </g>
-            </svg>
+          <div style={{display:'flex',alignItems:'center',gap:isMobile?6:8,flexShrink:0}}>
+            <img src={CLASSES.gteen.logo} alt="Gteen"
+              style={{width:isMobile?26:30,height:isMobile?26:30,objectFit:'contain',
+                background:'#fff',borderRadius:'50%',padding:2}}/>
+            <img src={CLASSES.ja.logo} alt="JA"
+              style={{width:isMobile?26:30,height:isMobile?26:30,objectFit:'contain',
+                background:'#fff',borderRadius:'50%',padding:2}}/>
             {!isMobile&&(
-              <div style={{lineHeight:1}}>
+              <div style={{lineHeight:1,marginLeft:4}}>
                 <div style={{fontFamily:'var(--display)',fontWeight:900,fontSize:15,
-                  color:'#f7f3eb',letterSpacing:'.04em'}}>MARANATA</div>
-                <div style={{fontFamily:'var(--display)',fontWeight:600,fontSize:9,
-                  color:'rgba(247,243,235,.45)',letterSpacing:'.22em',marginTop:2}}>
-                  CLASS · LAS CONDES
+                  color:'#f7f3eb',letterSpacing:'.04em',textTransform:'uppercase'}}>Mi Racha</div>
+                <div style={{fontFamily:'var(--display)',fontWeight:700,fontSize:12,
+                  color:'#ffd000',letterSpacing:'.18em',marginTop:1,textTransform:'uppercase'}}>
+                  Espiritual
                 </div>
               </div>
             )}
           </div>
+
+          {/* Badge de racha del mes — ícono según sábados asistidos */}
+          {(()=>{
+            const lvl = streakLevel(monthlyStreak);
+            return(
+              <button onClick={()=>setAttOpen(true)}
+                title={`Mi racha de este mes: ${lvl.label}`}
+                style={{
+                  display:'flex',alignItems:'center',gap:isMobile?4:6,flexShrink:0,
+                  background:`${lvl.color}22`,
+                  border:`1px solid ${lvl.color}66`,
+                  borderRadius:50,
+                  padding:isMobile?'3px 8px 3px 4px':'4px 10px 4px 5px',
+                  color:'#f7f3eb',cursor:'pointer',
+                }}>
+                <span style={{fontSize:isMobile?16:18,lineHeight:1}}>{lvl.icon}</span>
+                <span style={{
+                  fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+                  fontSize:isMobile?13:15,color:lvl.color,
+                }}>{monthlyStreak}/4</span>
+              </button>
+            );
+          })()}
 
           {/* Botón de guía — entre el logo y el estado de sala */}
           <button onClick={()=>setGuideOpen(true)} title="¿Cómo usar la app?" style={{
@@ -6792,10 +7031,11 @@ function App(){
           users={users} myId={UID.current} session={session}
           onDragMove={handleDragMove}
           roomRef={roomRef} full={false} reactions={reactions}
+          classKey={userClass}
         />
 
         {/* Repaso: botón flotante — solo para usuarios en zona repaso */}
-        {phase==='repaso'&&!repasoChatOpen&&(users[UID.current]?.zone==='repaso'||isAdmin)&&(
+        {phase==='repaso'&&!repasoChatOpen&&(effectiveZone(users[UID.current])==='sala'||isAdmin)&&(
           <button onClick={()=>setRepasoChatOpen(true)} style={{
             position:'absolute',bottom:20,left:'50%',transform:'translateX(-50%)',
             background:'#fb923c',
@@ -6815,7 +7055,7 @@ function App(){
         )}
 
         {/* Misión: botón flotante — solo para usuarios en zona misión */}
-        {phase==='mision'&&!misionOpen&&(users[UID.current]?.zone==='mision'||isAdmin)&&(
+        {phase==='mision'&&!misionOpen&&(effectiveZone(users[UID.current])==='sala'||isAdmin)&&(
           <button onClick={()=>setMisionOpen(true)} style={{
             position:'absolute',bottom:20,left:'50%',transform:'translateX(-50%)',
             background:'#3b82f6',
@@ -7017,7 +7257,7 @@ function App(){
       )}
 
       {/* Repaso Chat — solo para usuarios en zona repaso o admin */}
-      {repasoChatOpen&&phase==='repaso'&&(users[UID.current]?.zone==='repaso'||isAdmin)&&(
+      {repasoChatOpen&&phase==='repaso'&&(effectiveZone(users[UID.current])==='sala'||isAdmin)&&(
         <RepasoChat
           msgs={msgs} session={session}
           myId={UID.current} users={users}
@@ -7030,12 +7270,12 @@ function App(){
 
       {/* Ícono flotante de chat — visible sobre la presentación (cuando el
           botón normal de la sala queda tapado por la slide) */}
-      {phase==='repaso'&&session?.presentation?.active&&!repasoChatOpen&&(users[UID.current]?.zone==='repaso'||isAdmin)&&(
+      {phase==='repaso'&&session?.presentation?.active&&!repasoChatOpen&&(effectiveZone(users[UID.current])==='sala'||isAdmin)&&(
         <ChatFab count={msgs.length} onClick={()=>setRepasoChatOpen(true)}/>
       )}
 
       {/* Misión — solo para usuarios en zona mision o admin */}
-      {misionOpen&&phase==='mision'&&(users[UID.current]?.zone==='mision'||isAdmin)&&(
+      {misionOpen&&phase==='mision'&&(effectiveZone(users[UID.current])==='sala'||isAdmin)&&(
         <MisionActivity
           session={session} users={users}
           myId={UID.current} SID={SID.current} isAdmin={isAdmin}
@@ -7862,7 +8102,7 @@ function KahootController({session,users,myId,isAdmin,SID,onClose}){
   const scores=game?.scores||{};
   const myScore=scores[myId]||0;
   const myAnswer=game?.answers?.[myId];
-  const juegosUsers=Object.entries(users).filter(([,u])=>u.zone==='juegos');
+  const juegosUsers=Object.entries(users).filter(([,u])=>effectiveZone(u)==='sala');
 
   useEffect(()=>{
     if(gState==='question'&&game?.qStartTime){
@@ -8124,7 +8364,7 @@ function TabuController({session,users,myId,isAdmin,SID,onClose}){
   const timerRef=useRef(null);
 
   const juegosUsers=Object.entries(users||{})
-    .filter(([_,u])=>u.zone==='juegos')
+    .filter(([_,u])=>effectiveZone(u)==='sala')
     .map(([uid,u])=>({uid,...u}));
 
   const currentSpeakerId=game?.currentSpeaker;
@@ -8328,7 +8568,7 @@ function TabuController({session,users,myId,isAdmin,SID,onClose}){
 function QuienSoyController({session,users,myId,isAdmin,SID,onClose}){
   const game=session?.quiensoy;
   const gState=game?.gameState;
-  const juegosUsers=Object.entries(users||{}).filter(([_,u])=>u.zone==='juegos').map(([uid,u])=>({uid,...u}));
+  const juegosUsers=Object.entries(users||{}).filter(([_,u])=>effectiveZone(u)==='sala').map(([uid,u])=>({uid,...u}));
   const currentPlayerId=game?.currentPlayer;
   const currentPlayer=currentPlayerId?users[currentPlayerId]:null;
   const isPlayer=currentPlayerId===myId;
@@ -8902,7 +9142,7 @@ function DibujaController({session,users,myId,isAdmin,SID,onClose}){
   const[timeLeft,setTimeLeft]=useState(TURN_SECONDS);
   const timerRef=useRef(null);
 
-  const juegosUsers=Object.entries(users||{}).filter(([_,u])=>u.zone==='juegos').map(([uid,u])=>({uid,...u}));
+  const juegosUsers=Object.entries(users||{}).filter(([_,u])=>effectiveZone(u)==='sala').map(([uid,u])=>({uid,...u}));
   const myTeamId=order.find(tid=>teams[tid]?.members?.[myId]);
   const isMyTurn=myTeamId===turnTeamId;
   const drawerId=game?.currentDrawer;
