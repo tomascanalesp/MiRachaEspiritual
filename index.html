@@ -948,21 +948,25 @@ function RoomCanvas({users,myId,session,onDragMove,roomRef,full,reactions,classK
         </div>
       )}
 
-      {/* Overlay proyección (full mode) */}
+      {/* Overlay proyección (full mode) — muestra solo la clase actual */}
       {full&&(<>
         <div style={{position:'absolute',top:18,left:'50%',transform:'translateX(-50%)',
-          background:'#fff',border:'1px solid rgba(10,14,46,.08)',
+          background:'#fff',border:`1px solid ${cls.color}33`,
           borderRadius:14,padding:'10px 26px',textAlign:'center',
           boxShadow:'0 6px 22px rgba(10,14,46,.08)',zIndex:20}}>
           <div style={{display:'flex',alignItems:'center',gap:10,justifyContent:'center'}}>
-            <img src={CLASSES.gteen.logo} alt="Gteen"
-              style={{width:28,height:28,objectFit:'contain'}}/>
-            <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,fontSize:22,
-              color:'#0a0e2e',letterSpacing:'.06em',textTransform:'uppercase'}}>Mi Racha Espiritual</div>
-            <img src={CLASSES.ja.logo} alt="JA"
-              style={{width:28,height:28,objectFit:'contain'}}/>
+            <img src={cls.logo} alt={cls.label}
+              style={{width:32,height:32,objectFit:'contain'}}/>
+            <div style={{textAlign:'left',lineHeight:1}}>
+              <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,fontSize:22,
+                color:'#0a0e2e',letterSpacing:'.06em',textTransform:'uppercase'}}>Mi Racha Espiritual</div>
+              <div style={{fontFamily:'Barlow Condensed,sans-serif',fontWeight:800,fontSize:11,
+                color:cls.color,letterSpacing:'.22em',textTransform:'uppercase',marginTop:2}}>
+                {cls.salaLabel}
+              </div>
+            </div>
           </div>
-          <div style={{fontSize:11,color:'#3b3f5a',letterSpacing:'.06em',marginTop:2,
+          <div style={{fontSize:11,color:'#3b3f5a',letterSpacing:'.06em',marginTop:6,
             fontFamily:'Barlow Condensed,sans-serif',fontWeight:600,textTransform:'uppercase'}}>
             {new Date().toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'long'})}
           </div>
@@ -6913,6 +6917,33 @@ function App(){
     setSetupSaving(false);
   };
 
+  /* ── Cambio rápido de clase desde el topbar de la sala ──
+     Saca al usuario de la sala actual, persiste la nueva clase en su perfil
+     y recarga la app para que los listeners se re-suscriban al nuevo SID. */
+  const switchClass=async(targetCls)=>{
+    const uid=UID.current;
+    if(!uid||!profile?.name) return;
+    if(!CLASSES[targetCls]) return;
+    if(profile.clase===targetCls) return;
+    try{
+      const oldSID=SID.current;
+      const newSID=`${targetCls}-${getSID()}`;
+      const updated={...profile, clase:targetCls};
+      await db.ref(`profiles/${uid}/clase`).set(targetCls);
+      try{ await db.ref(`rooms/${oldSID}/users/${uid}`).remove(); }catch(e){}
+      SID.current=newSID;
+      await db.ref(`rooms/${newSID}/users/${uid}`).set({
+        name:profile.name,avatar:profile.avatar,color:profile.color,
+        photo:profile.photo||null,clase:targetCls,
+        zone:'entrada',x:49,y:9,joinedAt:Date.now(),
+      });
+      setProfile(updated);
+      window.location.reload();
+    }catch(e){
+      console.error('Error cambiando de sala:',e);
+    }
+  };
+
   /* ── Auth handlers ── */
   const handleEmailAuth=async()=>{
     if(!email.trim()||!password) return;
@@ -7425,27 +7456,65 @@ function App(){
         display:'flex',alignItems:'center',justifyContent:'space-between',
         flexShrink:0,minHeight:isMobile?52:56,gap:isMobile?6:8,
       }}>
-        {/* IZQ — Logos Gteen+JA + título Mi Racha Espiritual + estado */}
+        {/* IZQ — Chip de clase actual (Gteen / JA) + título Mi Racha Espiritual + estado */}
         <div style={{display:'flex',alignItems:'center',
           gap:isMobile?8:10,minWidth:0,flex:'1 1 auto',overflow:'hidden'}}>
-          <div style={{display:'flex',alignItems:'center',gap:isMobile?6:8,flexShrink:0}}>
-            <img src={CLASSES.gteen.logo} alt="Gteen"
-              style={{width:isMobile?26:30,height:isMobile?26:30,objectFit:'contain',
-                background:'#fff',borderRadius:'50%',padding:2}}/>
-            <img src={CLASSES.ja.logo} alt="JA"
-              style={{width:isMobile?26:30,height:isMobile?26:30,objectFit:'contain',
-                background:'#fff',borderRadius:'50%',padding:2}}/>
-            {!isMobile&&(
-              <div style={{lineHeight:1,marginLeft:4}}>
-                <div style={{fontFamily:'var(--display)',fontWeight:900,fontSize:15,
-                  color:'#f7f3eb',letterSpacing:'.04em',textTransform:'uppercase'}}>Mi Racha</div>
-                <div style={{fontFamily:'var(--display)',fontWeight:700,fontSize:12,
-                  color:'#ffd000',letterSpacing:'.18em',marginTop:1,textTransform:'uppercase'}}>
-                  Espiritual
+          {/* Chip de la sala actual con toggle a la otra clase.
+              Clicar sobre el chip cambia de sala (saca al usuario y entra a la otra). */}
+          {(()=>{
+            const curCls=(profile?.clase&&CLASSES[profile.clase])||CLASSES.gteen;
+            const otherKey=curCls.id==='gteen'?'ja':'gteen';
+            const otherCls=CLASSES[otherKey];
+            return(
+              <div style={{display:'flex',alignItems:'center',gap:isMobile?4:6,flexShrink:0,
+                background:`${curCls.color}18`,border:`1px solid ${curCls.color}55`,
+                borderRadius:50,padding:isMobile?'2px 4px 2px 2px':'3px 6px 3px 3px'}}>
+                <div title={`Sala ${curCls.label} · ${curCls.full}`} style={{
+                  width:isMobile?26:30,height:isMobile?26:30,borderRadius:'50%',
+                  background:'#fff',padding:2,flexShrink:0,
+                  display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <img src={curCls.logo} alt={curCls.label}
+                    style={{width:'100%',height:'100%',objectFit:'contain'}}/>
                 </div>
+                {!isMobile&&(
+                  <div style={{lineHeight:1,padding:'0 2px 0 4px',
+                    fontFamily:'Barlow Condensed,sans-serif',fontWeight:900,
+                    fontSize:13,color:curCls.color,letterSpacing:'.08em',
+                    textTransform:'uppercase'}}>
+                    Sala {curCls.label}
+                  </div>
+                )}
+                <button onClick={()=>{
+                    if(window.confirm(`¿Cambiar a la Sala ${otherCls.label}? Saldrás de la sala actual.`)){
+                      switchClass(otherKey);
+                    }
+                  }}
+                  title={`Cambiar a Sala ${otherCls.label}`}
+                  style={{
+                    width:isMobile?24:26,height:isMobile?24:26,borderRadius:'50%',
+                    background:'#fff',padding:2,flexShrink:0,cursor:'pointer',
+                    border:`1px solid ${otherCls.color}66`,
+                    display:'flex',alignItems:'center',justifyContent:'center',
+                    transition:'transform .15s'}}
+                  onMouseDown={e=>e.currentTarget.style.transform='scale(.92)'}
+                  onMouseUp={e=>e.currentTarget.style.transform='scale(1)'}
+                  onMouseLeave={e=>e.currentTarget.style.transform='scale(1)'}>
+                  <img src={otherCls.logo} alt={`Cambiar a ${otherCls.label}`}
+                    style={{width:'100%',height:'100%',objectFit:'contain',opacity:.85}}/>
+                </button>
               </div>
-            )}
-          </div>
+            );
+          })()}
+          {!isMobile&&(
+            <div style={{lineHeight:1,marginLeft:2,flexShrink:0}}>
+              <div style={{fontFamily:'var(--display)',fontWeight:900,fontSize:15,
+                color:'#f7f3eb',letterSpacing:'.04em',textTransform:'uppercase'}}>Mi Racha</div>
+              <div style={{fontFamily:'var(--display)',fontWeight:700,fontSize:12,
+                color:'#ffd000',letterSpacing:'.18em',marginTop:1,textTransform:'uppercase'}}>
+                Espiritual
+              </div>
+            </div>
+          )}
 
           {/* Badge de racha del mes — ícono según sábados asistidos */}
           {(()=>{
